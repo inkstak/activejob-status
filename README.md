@@ -2,6 +2,10 @@
 
 Simple monitoring status for ActiveJob, independent of your queuing backend and cache storage.
 
+```
+gem 'activejob-status', github: 'inkstak/activejob-status'
+```
+
 ## Configuration
 
 By default, ActiveJob::Status use the Rails.cache to store data.
