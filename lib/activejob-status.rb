@@ -28,11 +28,12 @@ module ActiveJob::Status
 
   class << self
     def store= store
+      store = ActiveSupport::Cache.lookup_store(store) if store.is_a?(Symbol)
       @@store = store
     end
 
     def store
-      @@store ||= Rails.cache
+      @@store ||= (defined?(Rails) && Rails.cache)
     end
 
     def get(id)

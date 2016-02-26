@@ -1,6 +1,6 @@
 # ActiveJob::Status
 
-Simple monitoring status for ActiveJob, independent of your queuing backend and cache storage.
+Simple monitoring status for ActiveJob, independent of your queuing backend or cache storage.
 
 ```
 gem 'activejob-status', github: 'inkstak/activejob-status'
@@ -8,7 +8,7 @@ gem 'activejob-status', github: 'inkstak/activejob-status'
 
 ## Configuration
 
-By default, ActiveJob::Status use the Rails.cache to store data.
+By default, ActiveJob::Status use the <code>Rails.cache</code> to store data.
 You can use any compatible ActiveSupport::Cache::Store you want (memory, memcache, redis, ..)
 or any storage responding to <code>read/write/delete</code>
 
@@ -16,7 +16,14 @@ Set your store:
 
 ```
 # config/initializers/activejob_status.rb
+# By default
+ActiveJob::Status.store = Rails.cache
+
+# Set another storage
 ActiveJob::Status.store = ActiveSupport::Cache::MemoryStore.new
+
+# Use the ActiveSupport#lookup_store syntax
+ActiveJob::Status.store = :redis_store
 ```
 
 
