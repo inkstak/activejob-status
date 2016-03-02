@@ -3,12 +3,16 @@ module ActiveJob::Status
     delegate :[], :to_s, :inspect, to: :read
     delegate :queued?, :working?, :completed?, to: :status_inquiry
 
-    def initialize(id)
-      @id = id
+    def initialize(job)
+      @job = job
+    end
+
+    def job_id
+      Storage.job_id(@job)
     end
 
     def read
-      Storage.read(@id)
+      Storage.read(@job)
     end
 
     def status

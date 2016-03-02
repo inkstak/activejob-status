@@ -5,9 +5,12 @@ module ActiveJob::Status
         ActiveJob::Status.store
       end
 
+      def job_id(job)
+        job.is_a?(String) ? job : job.job_id
+      end
+
       def key(job)
-        id = job.is_a?(String) ? job : job.job_id
-        "activejob:status:#{id}"
+        "activejob:status:#{job_id(job)}"
       end
 
       def read(job)
