@@ -13,7 +13,7 @@ module ActiveJob::Status
     after_perform  {|job| job.status.update(status: :completed) }
 
     rescue_from(Exception) do |e|
-      job.status.update(status: :failed)
+      self.status.update(status: :failed)
       raise e
     end
   end
@@ -38,6 +38,10 @@ module ActiveJob::Status
 
     def get(id)
       Sub.new(id)
+    end
+
+    def pub(id)
+      Pub.new(id)
     end
   end
 end
