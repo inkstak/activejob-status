@@ -1,6 +1,5 @@
 require 'activejob-status/storage'
-require 'activejob-status/pub'
-require 'activejob-status/sub'
+require 'activejob-status/status'
 require 'activejob-status/progress'
 
 module ActiveJob::Status
@@ -19,7 +18,7 @@ module ActiveJob::Status
   end
 
   def status
-    @status ||= Pub.new(self)
+    @status ||= Status.new(self)
   end
 
   def progress
@@ -37,11 +36,7 @@ module ActiveJob::Status
     end
 
     def get(id)
-      Sub.new(id)
-    end
-
-    def pub(id)
-      Pub.new(id)
+      Status.new(id)
     end
   end
 end

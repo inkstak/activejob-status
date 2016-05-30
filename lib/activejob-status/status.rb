@@ -1,5 +1,5 @@
 module ActiveJob::Status
-  class Sub
+  class Status
     delegate :[], :to_s, :inspect, to: :read
     delegate :queued?, :working?, :completed?, to: :status_inquiry
 
@@ -7,12 +7,24 @@ module ActiveJob::Status
       @job = job
     end
 
-    def job_id
-      Storage.job_id(@job)
+    def []= key, value
+      update(key => value)
     end
 
     def read
       Storage.read(@job)
+    end
+
+    def update(message)
+      Storage.update(@job, message)
+    end
+
+    def delete
+      Storage.delete(@job)
+    end
+
+    def job_id
+      Storage.job_id(@job)
     end
 
     def status
@@ -22,8 +34,6 @@ module ActiveJob::Status
     def progress
       read[:progress].to_f / read[:total].to_f
     end
-
-  protected
 
     def status_inquiry
       status.to_s.inquiry
