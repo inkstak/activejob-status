@@ -35,6 +35,10 @@ module ActiveJob::Status
       read[:progress].to_f / read[:total].to_f
     end
 
+    def present?
+      read.present?
+    end
+
     def status_inquiry
       status.to_s.inquiry
     end
