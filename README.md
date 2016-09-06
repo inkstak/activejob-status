@@ -12,6 +12,8 @@ By default, ActiveJob::Status use the <code>Rails.cache</code> to store data.
 You can use any compatible ActiveSupport::Cache::Store you want (memory, memcache, redis, ..)
 or any storage responding to <code>read/write/delete</code>
 
+> **Note** : In Rails 5, `Rails.cache` defaults to  `ActiveSupport::Cache::NullStore` which will result in empty status. Setting a cache store for ActiveJob::Status is therefore mandatory.
+
 Set your store:
 
 ```
