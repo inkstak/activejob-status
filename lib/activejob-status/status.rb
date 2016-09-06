@@ -1,7 +1,7 @@
 module ActiveJob::Status
   class Status
     delegate :[], :to_s, :inspect, to: :read
-    delegate :queued?, :working?, :completed?, to: :status_inquiry
+    delegate :queued?, :working?, :completed?, :failed?, to: :status_inquiry
 
     def initialize(job)
       @job = job
