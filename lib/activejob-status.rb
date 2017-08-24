@@ -26,6 +26,14 @@ module ActiveJob::Status
   end
 
   class << self
+    def options= options
+      @@options = options
+    end
+
+    def options
+      @@options || { expires_in: DEFAULT_EXPIRY }
+    end
+
     def store= store
       store = ActiveSupport::Cache.lookup_store(store) if store.is_a?(Symbol)
       @@store = store
