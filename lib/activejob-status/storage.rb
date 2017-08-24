@@ -5,6 +5,10 @@ module ActiveJob::Status
         ActiveJob::Status.store
       end
 
+      def options
+        ActiveJob::Status.options
+      end
+
       def job_id(job)
         job.is_a?(String) ? job : job.job_id
       end
@@ -18,7 +22,7 @@ module ActiveJob::Status
       end
 
       def write(job, message)
-        store.write(key(job), message, expires_in: DEFAULT_EXPIRY)
+        store.write(key(job), message, expires_in: options[:expires_in])
       end
 
       def update(job, message)
