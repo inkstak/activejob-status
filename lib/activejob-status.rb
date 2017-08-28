@@ -31,7 +31,7 @@ module ActiveJob::Status
     end
 
     def options
-      @@options || { expires_in: DEFAULT_EXPIRY }
+      @@options ||= { expires_in: DEFAULT_EXPIRY }
     end
 
     def store= store
