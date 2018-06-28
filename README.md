@@ -3,7 +3,7 @@
 Simple monitoring status for ActiveJob, independent of your queuing backend or cache storage.
 
 ```
-gem 'activejob-status', github: 'inkstak/activejob-status'
+gem 'activejob-status'
 ```
 
 ## Configuration
