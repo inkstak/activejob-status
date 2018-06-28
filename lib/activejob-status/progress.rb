@@ -1,6 +1,6 @@
 module ActiveJob::Status
   class Progress
-    delegate :[], :to_s, :inspect, to: :hash
+    delegate :[], :to_s, :to_json, :inspect, to: :hash
 
     def initialize(job)
       @job      = job

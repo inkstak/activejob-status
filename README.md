@@ -102,3 +102,10 @@ until it's completed
 
     status[:foo]
     # => true
+
+Within a controller
+
+    def status
+      status = ActiveJob::Status.get(params[:job])
+      render json: status.to_json
+    end
