@@ -109,3 +109,24 @@ Within a controller
       status = ActiveJob::Status.get(params[:job])
       render json: status.to_json
     end
+
+
+## Contributing
+
+1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/musicbrainz)
+2. Fork the [repository](https://github.com/inkstak/musicbrainz)
+3. Create your feature branch
+4. Create a pull request
+
+### Tests
+
+Not yet provided.
+
+## License & credits
+
+Copyright (c) 2019 Savater Sebastien.  
+See [LICENSE](https://github.com/inkstak/activejob-status/blob/master/LICENSE) for further details.
+
+Contributors:
+* Valentin Ballestrino [@vala](https://github.com/vala)
+* Dennis van de Hoef [@dennisvandehoef](https://github.com/dennisvandehoef)
