@@ -54,8 +54,8 @@ class MyJob < ActiveJob::Base
     progress.total = 1000
 
     1000.time do |i|
-   	  progress.increment
-   	end
+      progress.increment
+    end
 
     status.update(foo: true)
   end
@@ -63,7 +63,7 @@ end
 ```
 
 
-Check the status a job
+Check the status of a job
 
     job = MyJob.perform_later
     status = ActiveJob::Status.get(job)
