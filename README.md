@@ -113,10 +113,10 @@ status[:foo]
 Within a controller
 
 ```ruby
-    def status
-      status = ActiveJob::Status.get(params[:job])
-      render json: status.to_json
-    end
+def status
+  status = ActiveJob::Status.get(params[:job])
+  render json: status.to_json
+end
 ```
 
 ## Contributing
