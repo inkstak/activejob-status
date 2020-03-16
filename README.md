@@ -8,13 +8,15 @@ gem 'activejob-status'
 
 ## Configuration
 
+### Cache Store
+
 By default, ActiveJob::Status use the <code>Rails.cache</code> to store data.
 You can use any compatible ActiveSupport::Cache::Store you want (memory, memcache, redis, ..)
 or any storage responding to <code>read/write/delete</code>
 
 > **Note** : In Rails 5, `Rails.cache` defaults to  `ActiveSupport::Cache::NullStore` which will result in empty status. Setting a cache store for ActiveJob::Status is therefore mandatory.
 
-Set your store:
+To set your own store:
 
 ```ruby
 # config/initializers/activejob_status.rb
@@ -28,6 +30,17 @@ ActiveJob::Status.store = ActiveSupport::Cache::MemoryStore.new
 ActiveJob::Status.store = :redis_store
 ```
 
+### Expiration time
+
+Because ActiveJob::Status relies on cache store, all statuses come with an expiration item.
+It's set to 1 hour by default.
+
+To set a longer expiration:
+
+```ruby
+# config/initializers/activejob_status.rb
+ActiveJob::Status.options = { expires_in: 30.days.to_i }
+```
 
 ## Usage
 
