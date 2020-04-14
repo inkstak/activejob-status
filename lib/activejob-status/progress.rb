@@ -1,15 +1,16 @@
 module ActiveJob
   module Status
     class Progress
-      delegate :[], :to_s, :to_json, :inspect, to: :hash
+      attr_reader :job, :total, :progress
+
+      delegate :[], :to_s, :to_json, :inspect, to: :to_h
+      delegate :status, to: :job, prefix: true
 
       def initialize(job)
         @job      = job
         @total    = 100
         @progress = 0
       end
-
-      attr_reader :total, :progress
 
       def total=(num)
         @total = num
@@ -32,16 +33,16 @@ module ActiveJob
         update { @total }
       end
 
+      def to_h
+        { progress: @progress, total: @total }
+      end
+
       private
 
       def update
         @progress = yield if block_given?
-        @job.status.update(hash)
+        job_status.update(to_h)
         self
-      end
-
-      def hash
-        { progress: @progress, total: @total }
       end
     end
   end

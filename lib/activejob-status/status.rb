@@ -15,6 +15,7 @@ module ActiveJob
       def read
         Storage.read(@job)
       end
+      alias to_h read
 
       def update(message)
         Storage.update(@job, message)
