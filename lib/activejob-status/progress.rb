@@ -9,6 +9,8 @@ module ActiveJob
         @progress = 0
       end
 
+      attr_reader :total, :progress
+
       def total=(num)
         @total = num
         update
