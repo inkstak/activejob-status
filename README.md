@@ -151,3 +151,5 @@ See [LICENSE](https://github.com/inkstak/activejob-status/blob/master/LICENSE) f
 Contributors:
 * Valentin Ballestrino [@vala](https://github.com/vala)
 * Dennis van de Hoef [@dennisvandehoef](https://github.com/dennisvandehoef)
+* Olle Jonsson [@olleolleolle](https://github.com/olleolleolle)
+* Felipe Sateler [@fsateler](https://github.com/fsateler)
