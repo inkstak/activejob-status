@@ -11,12 +11,20 @@ module ActiveJob
       before_enqueue { |job| job.status.update(status: :queued) }
       before_perform { |job| job.status.update(status: :working) }
       after_perform  { |job| job.status.update(status: :completed) }
-
-      rescue_from(Exception) do |e|
+    end
+    
+    def perform_now(*)
+      # We can't use rescue_from(Exception) because it is brittle:
+      # it will miss non-StandardError, and may be preempted by another
+      # rescue_from block
+      begin
+        super
+      rescue Exception
         status.update(status: :failed)
-        raise e
+        raise
       end
     end
+        
 
     def status
       @status ||= Status.new(self)
