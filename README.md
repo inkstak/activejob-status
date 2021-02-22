@@ -134,8 +134,8 @@ end
 
 ## Contributing
 
-1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/musicbrainz)
-2. Fork the [repository](https://github.com/inkstak/musicbrainz)
+1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/activejob-status)
+2. Fork the [repository](https://github.com/inkstak/activejob-status)
 3. Create your feature branch
 4. Create a pull request
 
