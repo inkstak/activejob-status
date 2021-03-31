@@ -132,6 +132,63 @@ def status
 end
 ```
 
+## ActiveJob::Status and exceptions
+
+Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed`  status before throwing the exception again.
+
+[Rails](https://api.rubyonrails.org/classes/ActiveSupport/Rescuable/ClassMethods.html#method-i-rescue_from) says:
+> Handlers are inherited. They are searched from right to left, from bottom to top, and up the hierarchy. The handler of the first class for which exception.is_a?(klass) holds true is the one invoked, if any.
+
+Thus, there are a few points to consider when using `rescue_from`:
+
+1 - Do not declare `rescue_from` handlers before including `ActiveJob::Status`. They cannot be called:
+
+```ruby
+class ApplicationJob < ActiveJob::Base
+  rescue_from Exception do |e|
+    ExceptionMonitoring.notify(e)
+    raise e
+  end
+end
+
+class MyJob < ApplicationJob
+  # The rescue handlers from ApplicationJob won't ever be executed
+  # and the exception monitoring won't be notified.
+
+  include ActiveJob::Status
+end
+```
+
+2 - If you're rescuing any or all exceptions, the status will never be set to `failed`. You need to update it by yourself:
+
+```ruby
+class ApplicationJob < ActiveJob::Base
+  include ActiveJob::Status
+
+  rescue_from Exception do |e|
+    ExceptionMonitoring.notify(e)
+    status.update(status: :failed)
+    raise e
+  end
+end
+```
+
+3 - Subsequent handlers will stop the rescuing mechanism:
+
+```ruby
+class MyJob < ApplicationJob
+  # With the exceptions handled below:
+  # - the monitor won't be notified
+  # - the job status will remains to `working`
+
+  retry_on    'SomeTimeoutError', wait: 5.seconds
+  discard_on  'DeserializationError'
+  rescue_from 'AnotherCustomException' do |e|
+    do_something_else
+  end
+end
+```
+
 ## Contributing
 
 1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/activejob-status)
