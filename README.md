@@ -14,42 +14,65 @@ By default, ActiveJob::Status use the <code>Rails.cache</code> to store data.
 You can use any compatible ActiveSupport::Cache::Store you want (memory, memcache, redis, ..)
 or any storage responding to <code>read/write/delete</code>
 
-> **Note** : In Rails 5, `Rails.cache` defaults to  `ActiveSupport::Cache::NullStore` which will result in empty status. Setting a cache store for ActiveJob::Status is therefore mandatory.
+> **Note** : In Rails 5, `Rails.cache` defaults to  `ActiveSupport::Cache::NullStore` which will result in empty status.
+Setting a cache store for ActiveJob::Status is therefore mandatory.
 
-To set your own store:
+You can set your own store:
 
 ```ruby
 # config/initializers/activejob_status.rb
 
+# Use an alternative cache store:
+#   ActiveJob::Status.store = :file_store
+#   ActiveJob::Status.store = :redis_cache_store
+#
+# You should avoid using cache store that are not shared between web and background processes
+# (ex: :mem_cache_store).
+#
+# The `store=` method doesn't handle multiple arguments like Rails.
+# In order to pass optional arguments, you should instantiate the store:
+#   ActiveJob::Status.store = ActiveSupport::Cache::FileStore.new('tmp/cache')
+#   ActiveJob::Status.store = ActiveSupport::Cache::RedisCacheStore.new(url: ENV['REDIS_CACHE_URL'])
+#
 if Rails.cache.is_a?(ActiveSupport::Cache::NullStore)
-  # Use an alternative cache store:
-  # ActiveJob::Status.store = :file_store
-  # ActiveJob::Status.store = :mem_cache_store
-  # ActiveJob::Status.store = :redis_cache_store
   ActiveJob::Status.store = :file_store
-    
-  # Avoid using cache store that are not shared by processes (ex: memory_store).
-
-  # The `store=` method doesn't handle multiple arguments like Rails.
-  # If you need to pass argument, you should instantiate the store:
-  # ActiveJob::Status.store = ActiveSupport::Cache::FileStore.new('tmp/cache')
-  # ActiveJob::Status.store = ActiveSupport::Cache::RedisCacheStore.new(url: ENV['REDIS_CACHE_URL'])
 end
 ```
 
 ### Expiration time
 
-Because ActiveJob::Status relies on cache store, all statuses come with an expiration item.
+Because ActiveJob::Status relies on cache store, all statuses come with an expiration time.  
 It's set to 1 hour by default.
 
-To set a longer expiration:
+You can set a longer expiration:
 
 ```ruby
 # config/initializers/activejob_status.rb
+
+# Set your own status expiration time:
+# Default is 1 hour.
+#
 ActiveJob::Status.options = { expires_in: 30.days.to_i }
 ```
 
+### Throttling
+
+Depending on the cache storage latency, updating a status too often can cause bottlenecks.  
+To narrow this effect, you can force a time interval between each updates:
+
+```ruby
+# config/initializers/activejob_status.rb
+
+# Apply a time interval in seconds between every status updates.
+# Default is 0 - no throttling mechanism
+#
+ActiveJob::Status.options = { throttle_interval: 0.1 }
+```
+
+
 ## Usage
+
+### Updating status
 
 Include the <code>ActiveJob::Status</code> module in your jobs.
 
@@ -61,7 +84,6 @@ end
 
 The module introduces two methods:
 
-* <code>status</code> to directly read/update status
 * <code>progress</code> to implement a progress status
 
 ```ruby
@@ -69,24 +91,82 @@ class MyJob < ActiveJob::Base
   include ActiveJob::Status
 
   def perform
-    status.update(foo: false)
-
     progress.total = 1000
 
-    1000.time do |i|
+    1000.time do
+      # ...do something...
       progress.increment
     end
-
-    status.update(foo: true)
   end
 end
 ```
 
+* <code>status</code> to directly read/update status
+
+```ruby
+class MyJob < ActiveJob::Base
+  include ActiveJob::Status
+
+  def perform
+    status[:step] = "A"
+
+    # ...do something...
+
+    status[:step]   = "B"
+    status[:result] = "...."
+  end
+end
+```
+
+You can combine both to update status and progress in a single call.
+
+```ruby
+class MyJob < ActiveJob::Base
+  include ActiveJob::Status
+
+  def perform
+    status.update(step: "A", total: 100)
+    
+    100.times do
+      # ...do something...
+      progress.increment
+    end
+
+    # Reset the progress for the next step
+    status.update(step: "B", total: 50, progress: 0)
+
+    50.times do
+      # ...do something...
+      progress.increment
+    end
+  end
+end
+```
+
+Throttling mechanism (see configuration) is applied when doing:
+
+```ruby
+progress.increment
+progress.decrement
+status.update(foo: 'bar')
+```
+
+Throttling mechanism is not applied when doing:
+
+```ruby
+progress.total    = 100
+progress.progress = 0
+progress.finish
+status[:foo]      = 'bar'
+status.update({ foo: 'bar' }, force: true)
+```
+
+### Reading status
 
 Check the status of a job
 
 ```ruby
-job = MyJob.perform_later
+job    = MyJob.perform_later
 status = ActiveJob::Status.get(job)
 # => { status: :queued }
 ```
@@ -101,50 +181,89 @@ status = ActiveJob::Status.get('d11b64e6-8631-4118-ae76-e19376769171')
 Follow the progression of your job
 
 ```ruby
-status
-# => { status: :working, progress: 100, total: 1000, foo: false }
+loop do
+  puts status
+  break if status.completed?
+end
 
-status.working?
-# => true
-
-status.progress
-# => 0.1
-
-status[:foo]
-# => false
+# => { status: :queued }
+# => { status: :working, progress: 0, total: 100, step: "A" }
+# => { status: :working, progress: 60, total: 100, step: "A" }
+# => { status: :working, progress: 90, total: 100, step: "A" }
+# => { status: :working, progress: 0, total: 50, step: "B" }
+# => { status: :completed, progress: 50, total: 50, step: "B" }
 ```
 
-until it's completed
+The status provides you getters:
 
 ```ruby
-status
-# => { status: :completed, progress: 1000, total: 1000, foo: true }
-
-status.completed?
-# => true
-
-status.progress
-# => 1
-
-status[:foo]
-# => true
+status.status     # => "working"
+status.queued?    # => false
+status.working?   # => true
+status.completed? # => false
+status.failed?    # => false
+status.progress   # => 0.5 (progress / total)
+status[:step]     # => "A"
 ```
 
-Within a controller
+... until it's completed
 
 ```ruby
-def status
-  status = ActiveJob::Status.get(params[:job])
-  render json: status.to_json
+status.status     # => "completed"
+status.completed? # => true
+status.progress   # => 1
+```
+
+### Serializing status to JSON
+
+Within a controller, you can serialize a status to JSON:
+
+```ruby
+class JobsController
+  def show
+    status = ActiveJob::Status.get(params[:id])
+    render json: status.to_json
+  end
+end
+```
+
+```
+GET /jobs/status/d11b64e6-8631-4118-ae76-e19376769171.json
+
+{
+  "status":   "working",
+  "progress": 50
+  "total":    100,
+  "step":     "A"
+}
+```
+
+### Setting options per job
+
+You can override default options per job:
+
+```ruby
+class MyJob < ActiveJob::Base
+  include ActiveJob::Status
+
+  def status
+    @status ||= ActiveJob::Status::Status.new(self, expires_in: 3.days, throttle_interval: 0.5)
+  end
+
+  def perform
+    ...
+  end
 end
 ```
 
 ## ActiveJob::Status and exceptions
 
-Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed`  status before throwing the exception again.
+Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed` status
+before throwing the exception again.
 
 [Rails](https://api.rubyonrails.org/classes/ActiveSupport/Rescuable/ClassMethods.html#method-i-rescue_from) says:
-> Handlers are inherited. They are searched from right to left, from bottom to top, and up the hierarchy. The handler of the first class for which exception.is_a?(klass) holds true is the one invoked, if any.
+> Handlers are inherited. They are searched from right to left, from bottom to top, and up the hierarchy. The handler of
+the first class for which exception.is_a?(klass) holds true is the one invoked, if any.
 
 Thus, there are a few points to consider when using `rescue_from`:
 
@@ -166,7 +285,8 @@ class MyJob < ApplicationJob
 end
 ```
 
-2 - If you're rescuing any or all exceptions, the status will never be set to `failed`. You need to update it by yourself:
+2 - If you're rescuing any or all exceptions, the status will never be set to `failed`. You need to update it by
+yourself:
 
 ```ruby
 class ApplicationJob < ActiveJob::Base
@@ -209,7 +329,7 @@ Not yet provided.
 
 ## License & credits
 
-Copyright (c) 2019 Savater Sebastien.  
+Copyright (c) 2021 Savater Sebastien.  
 See [LICENSE](https://github.com/inkstak/activejob-status/blob/master/LICENSE) for further details.
 
 Contributors:
