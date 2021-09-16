@@ -4,29 +4,31 @@ module ActiveJob
       delegate :[], :to_s, :to_json, :inspect, to: :read
       delegate :queued?, :working?, :completed?, :failed?, to: :status_inquiry
 
-      def initialize(job)
-        @job = job
+      def initialize(job, options = {})
+        options  = ActiveJob::Status.options.merge(options)
+        @storage = ActiveJob::Status::Storage.new(options)
+        @job     = job
       end
 
       def []=(key, value)
-        update(key => value)
+        update({ key => value }, force: true)
       end
 
       def read
-        Storage.read(@job)
+        @storage.read(@job)
       end
       alias to_h read
 
-      def update(message)
-        Storage.update(@job, message)
+      def update(message, **options)
+        @storage.update(@job, message, **options)
       end
 
       def delete
-        Storage.delete(@job)
+        @storage.delete(@job)
       end
 
       def job_id
-        Storage.job_id(@job)
+        @storage.job_id(@job)
       end
 
       def status

@@ -1,38 +1,44 @@
 module ActiveJob
   module Status
-    module Storage
-      class << self
-        def store
-          ActiveJob::Status.store
-        end
+    class Storage
+      def initialize(options = {})
+        options.assert_valid_keys(:expires_in, :throttle_interval)
 
-        def options
-          ActiveJob::Status.options
-        end
+        @expires_in = options[:expires_in]
+        @throttle   = ActiveJob::Status::Throttle.new(options[:throttle_interval])
+      end
 
-        def job_id(job)
-          job.is_a?(String) ? job : job.job_id
-        end
+      def store
+        @store ||= ActiveJob::Status.store
+      end
 
-        def key(job)
-          "activejob:status:#{job_id(job)}"
-        end
+      def job_id(job)
+        job.is_a?(String) ? job : job.job_id
+      end
 
-        def read(job)
-          store.read(key(job)) || {}
-        end
+      def key(job)
+        "activejob:status:#{job_id(job)}"
+      end
 
-        def write(job, message)
-          store.write(key(job), message, expires_in: options[:expires_in])
-        end
+      def read(job)
+        store.read(key(job)) || {}
+      end
 
-        def update(job, message)
-          write(job, read(job).merge(message))
+      def write(job, message, force: false)
+        @throttle.wrap(force: force) do
+          store.write(key(job), message, expires_in: @expires_in)
         end
+      end
 
-        def delete(job)
-          store.delete(key(job))
+      def update(job, message, force: false)
+        @throttle.wrap(force: force) do
+          message = read(job).merge(message)
+          store.write(key(job), message, expires_in: @expires_in)
         end
+      end
+
+      def delete(job)
+        store.delete(key(job))
       end
     end
   end

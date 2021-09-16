@@ -14,35 +14,36 @@ module ActiveJob
 
       def total=(num)
         @total = num
-        update
+        job_status.update(to_h, force: true)
+        self
       end
 
       def progress=(num)
-        update { num }
+        @progress = num
+        job_status.update(to_h, force: true)
+        self
       end
 
       def increment(num = 1)
-        update { @progress + num }
+        @progress += num
+        job_status.update(to_h)
+        self
       end
 
       def decrement(num = 1)
-        update { @progress - num }
+        @progress -= num
+        job_status.update(to_h)
+        self
       end
 
       def finish
-        update { @total }
+        @progress = @total
+        job_status.update(to_h, force: true)
+        self
       end
 
       def to_h
         { progress: @progress, total: @total }
-      end
-
-      private
-
-      def update
-        @progress = yield if block_given?
-        job_status.update(to_h)
-        self
       end
     end
   end
