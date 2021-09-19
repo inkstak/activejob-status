@@ -23,19 +23,15 @@ You can set your own store:
 # config/initializers/activejob_status.rb
 
 # Use an alternative cache store:
-#   ActiveJob::Status.store = :file_store
-#   ActiveJob::Status.store = :redis_cache_store
+#   ActiveJob::Status.store = :file_store, "/path/to/cache/directory"
+#   ActiveJob::Status.store = :redis_cache_store, { url: ENV['REDIS_URL'] }
+#   ActiveJob::Status.store = :mem_cache_store
 #
 # You should avoid using cache store that are not shared between web and background processes
-# (ex: :mem_cache_store).
-#
-# The `store=` method doesn't handle multiple arguments like Rails.
-# In order to pass optional arguments, you should instantiate the store:
-#   ActiveJob::Status.store = ActiveSupport::Cache::FileStore.new('tmp/cache')
-#   ActiveJob::Status.store = ActiveSupport::Cache::RedisCacheStore.new(url: ENV['REDIS_CACHE_URL'])
+# (ex: :memory_store).
 #
 if Rails.cache.is_a?(ActiveSupport::Cache::NullStore)
-  ActiveJob::Status.store = :file_store
+  ActiveJob::Status.store = :mem_cache_store
 end
 ```
 

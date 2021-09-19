@@ -43,7 +43,7 @@ module ActiveJob
       end
 
       def store=(store)
-        store = ActiveSupport::Cache.lookup_store(store) if store.is_a?(Symbol)
+        store   = ActiveSupport::Cache.lookup_store(*store) if store.is_a?(Array) || store.is_a?(Symbol)
         @@store = store
       end
 
