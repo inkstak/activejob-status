@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'active_support/core_ext/hash'
 require 'activejob-status/storage'
 require 'activejob-status/status'

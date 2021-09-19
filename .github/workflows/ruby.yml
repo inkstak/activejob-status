@@ -1,0 +1,39 @@
+name: Ruby
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    name: >-
+      ${{ matrix.ruby }} / ${{ matrix.gemfile }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { ruby: 2.5, c-o-e: false }
+          - { ruby: 2.7, c-o-e: false }
+          - { ruby: 3.0, c-o-e: false }
+          - { ruby: jruby-9.2.19.0, c-o-e: false }
+          - { ruby: ruby-head, c-o-e: true }
+          - { ruby: jruby-head, c-o-e: true }
+          - { ruby: truffleruby, c-o-e: true }
+          - { ruby: truffleruby-head, c-o-e: true }
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby }}
+    - name: Install dependencies
+      env:
+        BUNDLE_GEMFILE: ${{ matrix.gemfile || 'Gemfile' }}
+      run: bundle install
+    - name: Run tests
+      run: bundle exec rake
+      continue-on-error: ${{ matrix.c-o-e || false }}
