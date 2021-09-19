@@ -19,7 +19,7 @@ module ActiveJob
       end
       alias to_h read
 
-      def update(message, **options)
+      def update(message, options = {})
         @storage.update(@job, message, **options)
       end
 
