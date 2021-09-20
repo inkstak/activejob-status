@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 $:.push File.expand_path('lib', __dir__)
 require 'activejob-status/version'
 
@@ -15,4 +17,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'activejob', '>= 4.2'
   s.add_dependency 'activesupport', '>= 4.2'
+  s.add_development_dependency "rake", "~> 12.0"
+  s.add_development_dependency "rspec", "~> 3.0"
+  s.add_development_dependency "bundler", ">= 1.3"
 end
