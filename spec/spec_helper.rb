@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
-require 'rspec'
+require 'bundler/setup'
+Bundler.setup
+
 require 'active_job'
 require 'activejob-status'
 
-ActiveJob::Status.store = :file_store, "tmp"
-Dir["#{File.dirname(__FILE__)}/jobs/**/*.rb"].sort.each { |f| require f }
+Dir.mkdir("tmp") unless Dir.exist?("tmp")
+
+ActiveJob::Base.queue_adapter = :test
+ActiveJob::Base.logger        = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.new(File.open("tmp/log", "w")))
+ActiveJob::Status.store       = :memory_store
 
 RSpec.configure do |config|
-  config.mock_with :rspec do |mock|
-    mock.syntax = :expect
-  end
   config.expect_with :rspec do |expect|
     expect.syntax = :expect
   end
 
-  config.warnings = true
+  config.include ActiveJob::TestHelper
 end
-
-ActiveJob::Base.queue_adapter = :inline
