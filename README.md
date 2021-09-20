@@ -321,15 +321,13 @@ end
 
 ### Tests
 
-Not yet provided.
+```bash
+bundle exec rspec
+```
 
 ## License & credits
 
 Copyright (c) 2021 Savater Sebastien.  
 See [LICENSE](https://github.com/inkstak/activejob-status/blob/master/LICENSE) for further details.
 
-Contributors:
-* Valentin Ballestrino [@vala](https://github.com/vala)
-* Dennis van de Hoef [@dennisvandehoef](https://github.com/dennisvandehoef)
-* Olle Jonsson [@olleolleolle](https://github.com/olleolleolle)
-* Felipe Sateler [@fsateler](https://github.com/fsateler)
+Contributors: [./graphs/contributors](https://github.com/inkstak/activejob-status/graphs/contributors)
