@@ -1,3 +1,10 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+
 name: Ruby
 
 on:
@@ -8,32 +15,18 @@ on:
 
 jobs:
   test:
-    name: >-
-      ${{ matrix.ruby }} / ${{ matrix.gemfile }}
-    runs-on: ubuntu-latest
 
+    runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
       matrix:
-        include:
-          - { ruby: 2.5, c-o-e: false }
-          - { ruby: 2.7, c-o-e: false }
-          - { ruby: 3.0, c-o-e: false }
-          - { ruby: jruby-9.2.19.0, c-o-e: false }
-          - { ruby: ruby-head, c-o-e: true }
-          - { ruby: jruby-head, c-o-e: true }
-          - { ruby: truffleruby, c-o-e: true }
-          - { ruby: truffleruby-head, c-o-e: true }
+        ruby-version: ['2.5', '2.6', '2.7', '3.0', head, jruby, jruby-head, truffleruby, truffleruby-head]
+
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby }}
-    - name: Install dependencies
-      env:
-        BUNDLE_GEMFILE: ${{ matrix.gemfile || 'Gemfile' }}
-      run: bundle install
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Run tests
       run: bundle exec rake
-      continue-on-error: ${{ matrix.c-o-e || false }}
