@@ -317,13 +317,23 @@ end
 1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/activejob-status)
 2. Fork the [repository](https://github.com/inkstak/activejob-status)
 3. Create your feature branch
+4. Ensure RSpec & Rubocop are passing
 4. Create a pull request
 
-### Tests
+### Tests & lint
 
 ```bash
 bundle exec rspec
+bundle exec rubocop
 ```
+
+Both can be run with:
+
+```bash
+bundle exec rake
+```
+
+Rubocop uses [Standard](https://github.com/testdouble/standard) cops
 
 ## License & credits
 

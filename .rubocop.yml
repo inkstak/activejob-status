@@ -1,0 +1,16 @@
+require:
+  - rubocop-performance
+  - rubocop-rspec
+  - rubocop-rake
+  - standard
+
+inherit_gem:
+  standard:
+    - config/base.yml
+    - config/ruby-2.5.yml
+    - config/ruby-2.7.yml
+
+AllCops:
+  Exclude:
+    - '**/tmp/**/*'
+    - '**/vendor/**/*'

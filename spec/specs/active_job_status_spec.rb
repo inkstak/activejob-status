@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "./spec_helper"
+require_relative "../spec_helper"
+require_relative "../jobs/test_jobs"
 
 RSpec.describe ActiveJob::Status do
-  class BaseJob < ActiveJob::Base
-    include ActiveJob::Status
-
-    def perform
-    end
-  end
-
   let(:job) { BaseJob.new }
 
   it "sets job status" do
@@ -30,82 +24,59 @@ RSpec.describe ActiveJob::Status do
 
   it "sets job status to queued after being enqueued" do
     job = BaseJob.perform_later
-    expect(job.status.to_h).to eq({ status: :queued })
+
+    expect(job.status.to_h).to eq(status: :queued)
   end
 
   it "sets job status to completed after being performed" do
     job = BaseJob.perform_later
     perform_enqueued_jobs
 
-    expect(job.status.to_h).to eq({ status: :completed })
+    expect(job.status.to_h).to eq(status: :completed)
   end
 
   pending "sets job status to running while being performed", skip: true do
-    class AsyncJob < BaseJob
-      queue_adapter = :async
-
-      def perform
-        sleep(1)
-      end
-    end
-
     job = AsyncJob.perform_later
 
-    expect(job.status.to_h).to eq({ status: :running })
+    expect(job.status.to_h).to eq(status: :running)
   end
 
   it "sets job status to failed after an exception is raised" do
-    class FailedJob < BaseJob
-      def perform
-        raise NoMethodError, "Something went wrong"
-      end
-    end
-
     job = FailedJob.perform_later
-    perform_enqueued_jobs rescue
 
-    expect(job.status.to_h).to eq({ status: :failed })
+    expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
+    expect(job.status.to_h).to eq(status: :failed)
   end
 
   it "updates job progress" do
-    class ProgressJob < BaseJob
-      def perform
-        progress.total = 100
-        progress.increment(40)
-      end
-    end
-
     job = ProgressJob.perform_later
     perform_enqueued_jobs
 
-    expect(job.status.to_h).to include({ progress: 40, total: 100 })
+    expect(job.status.to_h).to include(progress: 40, total: 100)
     expect(job.status.progress).to eq(0.4)
   end
 
   it "updates job status with custom property using []=" do
-    class CustomJob < BaseJob
-      def perform
-        status[:step] = "A"
-      end
-    end
-
-    job = CustomJob.perform_later
+    job = CustomPropertyJob.perform_later
     perform_enqueued_jobs
 
-    expect(job.status.to_h).to include({ step: "A" })
+    expect(job.status.to_h).to include(step: "A")
   end
 
   it "updates job status with multiple properties using .update()" do
-    class CustomJob < BaseJob
-      def perform
-        status.update(step: "B", progress: 25, total: 50)
-      end
-    end
-
-    job = CustomJob.perform_later
+    job = UpdateJob.perform_later
     perform_enqueued_jobs
 
-    expect(job.status.to_h).to include({ step: "B", progress: 25, total: 50 })
+    expect(job.status.to_h).to include(step: "B", progress: 25, total: 50)
     expect(job.status.progress).to eq(0.5)
+  end
+
+  it "retrieves all job status properties remotely" do
+    job = UpdateJob.perform_later
+    status = ActiveJob::Status.get(job.job_id)
+
+    expect { perform_enqueued_jobs }
+      .to change(status, :to_h)
+      .to(status: :completed, step: "B", progress: 25, total: 50)
   end
 end

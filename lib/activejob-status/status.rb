@@ -7,19 +7,19 @@ module ActiveJob
       delegate :queued?, :working?, :completed?, :failed?, to: :status_inquiry
 
       def initialize(job, options = {})
-        options  = ActiveJob::Status.options.merge(options)
+        options = ActiveJob::Status.options.merge(options)
         @storage = ActiveJob::Status::Storage.new(options)
-        @job     = job
+        @job = job
       end
 
       def []=(key, value)
-        update({ key => value }, force: true)
+        update({key => value}, force: true)
       end
 
       def read
         @storage.read(@job)
       end
-      alias to_h read
+      alias_method :to_h, :read
 
       def update(message, options = {})
         @storage.update(@job, message, **options)

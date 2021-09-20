@@ -7,7 +7,7 @@ module ActiveJob
         options.assert_valid_keys(:expires_in, :throttle_interval)
 
         @expires_in = options[:expires_in]
-        @throttle   = ActiveJob::Status::Throttle.new(options[:throttle_interval])
+        @throttle = ActiveJob::Status::Throttle.new(options[:throttle_interval])
       end
 
       def store

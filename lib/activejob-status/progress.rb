@@ -9,21 +9,19 @@ module ActiveJob
       delegate :status, to: :job, prefix: true
 
       def initialize(job)
-        @job      = job
-        @total    = 100
+        @job = job
+        @total = 100
         @progress = 0
       end
 
       def total=(num)
         @total = num
         job_status.update(to_h, force: true)
-        self
       end
 
       def progress=(num)
         @progress = num
         job_status.update(to_h, force: true)
-        self
       end
 
       def increment(num = 1)
@@ -45,7 +43,7 @@ module ActiveJob
       end
 
       def to_h
-        { progress: @progress, total: @total }
+        {progress: @progress, total: @total}
       end
     end
   end
