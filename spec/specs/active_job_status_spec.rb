@@ -68,7 +68,14 @@ RSpec.describe ActiveJob::Status do
     perform_enqueued_jobs
 
     expect(job.status.to_h).to include(step: "B", progress: 25, total: 50)
-    expect(job.status.progress).to eq(0.5)
+  end
+
+  it "internally sync job progress when updating it with .update()" do
+    job = UpdateJob.new
+    job.perform
+
+    expect(job.progress.progress).to eq(25)
+    expect(job.progress.total).to eq(50)
   end
 
   it "retrieves all job status properties remotely" do
