@@ -17,12 +17,12 @@ module ActiveJob
     }.freeze
 
     included do
-      before_enqueue { |job| job.status.update({ status: :queued }, force: true) }
-      before_perform { |job| job.status.update({ status: :working }, force: true) }
-      after_perform { |job| job.status.update({ status: :completed }, force: true) }
+      before_enqueue { |job| job.status[:status] = :queued }
+      before_perform { |job| job.status[:status] = :working }
+      after_perform { |job| job.status[:status] = :completed }
 
       rescue_from(Exception) do |e|
-        status.update({ status: :failed }, force: true)
+        status[:status] = :failed
         raise e
       end
     end

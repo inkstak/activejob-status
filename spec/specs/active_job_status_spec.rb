@@ -79,4 +79,27 @@ RSpec.describe ActiveJob::Status do
       .to change(status, :to_h)
       .to(status: :completed, step: "B", progress: 25, total: 50)
   end
+
+  context "with throttle mechanism" do
+    it "updates job status despite throttling using []=" do
+      job = ThrottledSettersJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
+    end
+
+    it "skip status updates due to throttling using .update()" do
+      job = ThrottledUpdatesJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to include(status: :completed)
+    end
+
+    it "updates job status despite throttling using .update(.., force: true)" do
+      job = ThrottledForcedUpdatesJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
+    end
+  end
 end
