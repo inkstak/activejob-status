@@ -22,6 +22,9 @@ module ActiveJob
       alias_method :to_h, :read
 
       def update(message, options = {})
+        @job.progress.instance_variable_set(:@progress, message[:progress]) if message.include?(:progress)
+        @job.progress.instance_variable_set(:@total, message[:total]) if message.include?(:total)
+
         @storage.update(@job, message, **options)
       end
 

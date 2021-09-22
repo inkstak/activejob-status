@@ -17,9 +17,9 @@ module ActiveJob
     }.freeze
 
     included do
-      before_enqueue { |job| job.status.update(status: :queued) }
-      before_perform { |job| job.status.update(status: :working) }
-      after_perform { |job| job.status.update(status: :completed) }
+      before_enqueue { |job| job.status[:status] = :queued }
+      before_perform { |job| job.status[:status] = :working }
+      after_perform { |job| job.status[:status] = :completed }
 
       rescue_from(Exception) do |e|
         status.update(status: :failed)

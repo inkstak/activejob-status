@@ -68,7 +68,14 @@ RSpec.describe ActiveJob::Status do
     perform_enqueued_jobs
 
     expect(job.status.to_h).to include(step: "B", progress: 25, total: 50)
-    expect(job.status.progress).to eq(0.5)
+  end
+
+  it "internally sync job progress when updating it with .update()" do
+    job = UpdateJob.new
+    job.perform
+
+    expect(job.progress.progress).to eq(25)
+    expect(job.progress.total).to eq(50)
   end
 
   it "retrieves all job status properties remotely" do
@@ -78,5 +85,28 @@ RSpec.describe ActiveJob::Status do
     expect { perform_enqueued_jobs }
       .to change(status, :to_h)
       .to(status: :completed, step: "B", progress: 25, total: 50)
+  end
+
+  context "with throttle mechanism" do
+    it "updates job status despite throttling using []=" do
+      job = ThrottledSettersJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
+    end
+
+    it "skip status updates due to throttling using .update()" do
+      job = ThrottledUpdatesJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to include(status: :completed)
+    end
+
+    it "updates job status despite throttling using .update(.., force: true)" do
+      job = ThrottledForcedUpdatesJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
+    end
   end
 end
