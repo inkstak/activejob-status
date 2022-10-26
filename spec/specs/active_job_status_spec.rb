@@ -15,11 +15,11 @@ RSpec.describe ActiveJob::Status do
   end
 
   it "instantiates job status with job object" do
-    expect(ActiveJob::Status.get(job)).to be_an(ActiveJob::Status::Status)
+    expect(described_class.get(job)).to be_an(ActiveJob::Status::Status)
   end
 
   it "instantiates job status with job ID" do
-    expect(ActiveJob::Status.get(job.job_id)).to be_an(ActiveJob::Status::Status)
+    expect(described_class.get(job.job_id)).to be_an(ActiveJob::Status::Status)
   end
 
   it "sets job status to queued after being enqueued" do
@@ -80,7 +80,7 @@ RSpec.describe ActiveJob::Status do
 
   it "retrieves all job status properties remotely" do
     job = UpdateJob.perform_later
-    status = ActiveJob::Status.get(job.job_id)
+    status = described_class.get(job.job_id)
 
     expect { perform_enqueued_jobs }
       .to change(status, :to_h)
@@ -107,6 +107,38 @@ RSpec.describe ActiveJob::Status do
       perform_enqueued_jobs
 
       expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
+    end
+  end
+
+  context "with #job included as an option" do
+    before do
+      described_class.options = {includes: %i[status serialized_job]}
+    end
+
+    it "sets job status to queued after being enqueued" do
+      job = BaseJob.perform_later
+
+      expect(job.status.to_h).to eq(status: :queued, serialized_job: job.serialize)
+    end
+
+    it "sets job status to completed after being performed" do
+      job = BaseJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to eq(status: :completed, serialized_job: job.serialize)
+    end
+  end
+
+  context "with #exception included as an option" do
+    before do
+      described_class.options = {includes: %i[status exception]}
+    end
+
+    it "sets job status to failed after an exception is raised" do
+      job = FailedJob.perform_later
+
+      expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
+      expect(job.status.to_h).to eq(status: :failed, exception: "Something went wrong")
     end
   end
 end

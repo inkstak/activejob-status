@@ -13,16 +13,25 @@ module ActiveJob
 
     DEFAULT_OPTIONS = {
       expires_in: 60 * 30,
-      throttle_interval: 0
+      throttle_interval: 0,
+      includes: {}
     }.freeze
 
     included do
-      before_enqueue { |job| job.status[:status] = :queued }
+      before_enqueue do |job|
+        job.status[:status] = :queued
+        job.status[:serialized_job] = job.serialize if ActiveJob::Status.options.fetch(:includes, []).include?(:serialized_job)
+      end
+
       before_perform { |job| job.status[:status] = :working }
       after_perform { |job| job.status[:status] = :completed }
 
       rescue_from(Exception) do |e|
-        status[:status] = :failed
+        if ActiveJob::Status.options.fetch(:includes, []).include?(:exception)
+          status.update(status: :failed, exception: e.message)
+        else
+          status.update(status: :failed)
+        end
         raise e
       end
     end

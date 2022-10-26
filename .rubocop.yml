@@ -14,3 +14,10 @@ AllCops:
   Exclude:
     - '**/tmp/**/*'
     - '**/vendor/**/*'
+
+RSpec/MultipleExpectations:
+  Max: 2
+
+RSpec/FilePath:
+  SpecSuffixOnly:
+    true
