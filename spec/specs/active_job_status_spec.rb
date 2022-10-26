@@ -25,14 +25,14 @@ RSpec.describe ActiveJob::Status do
   it "sets job status to queued after being enqueued" do
     job = BaseJob.perform_later
 
-    expect(job.status.to_h).to eq(status: :queued)
+    expect(job.status.to_h).to eq(status: :queued, job: job.serialize)
   end
 
   it "sets job status to completed after being performed" do
     job = BaseJob.perform_later
     perform_enqueued_jobs
 
-    expect(job.status.to_h).to eq(status: :completed)
+    expect(job.status.to_h).to eq(status: :completed, job: job.serialize)
   end
 
   pending "sets job status to running while being performed", skip: true do
@@ -45,7 +45,7 @@ RSpec.describe ActiveJob::Status do
     job = FailedJob.perform_later
 
     expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
-    expect(job.status.to_h).to eq(status: :failed)
+    expect(job.status.to_h).to eq(status: :failed, message: "Something went wrong", job: job.serialize)
   end
 
   it "updates job progress" do
@@ -81,10 +81,9 @@ RSpec.describe ActiveJob::Status do
   it "retrieves all job status properties remotely" do
     job = UpdateJob.perform_later
     status = ActiveJob::Status.get(job.job_id)
-
     expect { perform_enqueued_jobs }
       .to change(status, :to_h)
-      .to(status: :completed, step: "B", progress: 25, total: 50)
+      .to(status: :completed, job: job.serialize, step: "B", progress: 25, total: 50)
   end
 
   context "with throttle mechanism" do

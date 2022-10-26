@@ -17,12 +17,16 @@ module ActiveJob
     }.freeze
 
     included do
-      before_enqueue { |job| job.status[:status] = :queued }
+      before_enqueue do |job|
+        job.status[:status] = :queued
+        job.status[:job] = job.serialize
+      end
+
       before_perform { |job| job.status[:status] = :working }
       after_perform { |job| job.status[:status] = :completed }
 
       rescue_from(Exception) do |e|
-        status[:status] = :failed
+        status.update(status: :failed, message: e.message)
         raise e
       end
     end
