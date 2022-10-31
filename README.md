@@ -252,6 +252,20 @@ class MyJob < ActiveJob::Base
 end
 ```
 
+### To store more information about the job:
+
+You are able to define what data you want to store
+
+Available options are: :status, :serialized_job, :exception
+
+Default is [:status]
+
+You can include it like the following in configuration.
+
+```ruby
+ActiveJob::Status.options = { includes: %i[status serialized_job exception] }
+```
+
 ## ActiveJob::Status and exceptions
 
 Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed` status

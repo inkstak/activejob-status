@@ -25,14 +25,14 @@ RSpec.describe ActiveJob::Status do
   it "sets job status to queued after being enqueued" do
     job = BaseJob.perform_later
 
-    expect(job.status.to_h).to eq(status: :queued, job: job.serialize)
+    expect(job.status.to_h).to eq(status: :queued)
   end
 
   it "sets job status to completed after being performed" do
     job = BaseJob.perform_later
     perform_enqueued_jobs
 
-    expect(job.status.to_h).to eq(status: :completed, job: job.serialize)
+    expect(job.status.to_h).to eq(status: :completed)
   end
 
   pending "sets job status to running while being performed", skip: true do
@@ -45,7 +45,7 @@ RSpec.describe ActiveJob::Status do
     job = FailedJob.perform_later
 
     expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
-    expect(job.status.to_h).to eq(status: :failed, message: "Something went wrong", job: job.serialize)
+    expect(job.status.to_h).to eq(status: :failed)
   end
 
   it "updates job progress" do
@@ -84,7 +84,7 @@ RSpec.describe ActiveJob::Status do
 
     expect { perform_enqueued_jobs }
       .to change(status, :to_h)
-      .to(status: :completed, job: job.serialize, step: "B", progress: 25, total: 50)
+      .to(status: :completed, step: "B", progress: 25, total: 50)
   end
 
   context "with throttle mechanism" do
@@ -107,6 +107,38 @@ RSpec.describe ActiveJob::Status do
       perform_enqueued_jobs
 
       expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
+    end
+  end
+
+  context "with #job included as an option" do
+    before do
+      described_class.options = {includes: %i[status serialized_job]}
+    end
+
+    it "sets job status to queued after being enqueued" do
+      job = BaseJob.perform_later
+
+      expect(job.status.to_h).to eq(status: :queued, serialized_job: job.serialize)
+    end
+
+    it "sets job status to completed after being performed" do
+      job = BaseJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to eq(status: :completed, serialized_job: job.serialize)
+    end
+  end
+
+  context "with #exception included as an option" do
+    before do
+      described_class.options = {includes: %i[status exception]}
+    end
+
+    it "sets job status to failed after an exception is raised" do
+      job = FailedJob.perform_later
+
+      expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
+      expect(job.status.to_h).to eq(status: :failed, exception: "Something went wrong")
     end
   end
 end
