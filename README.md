@@ -35,6 +35,24 @@ if Rails.cache.is_a?(ActiveSupport::Cache::NullStore)
 end
 ```
 
+### Select data to store by default
+
+By default, ActiveJob::Status already stores a status key at each step of a job's life cycle.  
+To understand what data are stored and what data to add, see [Data stored by default](#data-stored-by-default).
+
+> **Warning** : adding more data means more memory consumed.  
+> For example, adding `:serialized_job` might require as much memory for caching as your use for your job backend.
+
+```ruby
+# config/initializers/activejob_status.rb
+
+# Select what data you want to store.
+# Available options are: :status, :serialized_job, :exception
+# Default is [:status]
+#
+ActiveJob::Status.options = { includes: %i[status exception] }
+```
+
 ### Expiration time
 
 Because ActiveJob::Status relies on cache store, all statuses come with an expiration time.  
@@ -157,6 +175,39 @@ status[:foo]      = 'bar'
 status.update({ foo: 'bar' }, force: true)
 ```
 
+### Data stored by default
+
+By default, ActiveJob::Status stores a status key.   
+You can add more information about the job using `includes` config.  
+
+Setting `ActiveJob::Status.options = { includes: %i[status] }` is equivalent to:
+
+```ruby
+before_enqueue { |job| job.status[:status] = :queued }
+before_perform { |job| job.status[:status] = :working }
+after_perform { |job| job.status[:status] = :completed }
+
+rescue_from(Exception) do |e|
+  status[:status] = :failed
+  raise e
+end
+```
+
+Setting `ActiveJob::Status.options = { includes: %i[serialized_job] }` is equivalent to:
+
+```ruby
+before_enqueue { |job| job.status[:serialized_job] = job.serialize }
+```
+
+Setting `ActiveJob::Status.options = { includes: %i[exception] }` is equivalent to:
+
+```ruby
+rescue_from(Exception) do |e|
+  status[:exception] = { class: e.class, message: e.message }
+  raise e
+end
+```
+
 ### Reading status
 
 Check the status of a job
@@ -243,27 +294,16 @@ class MyJob < ActiveJob::Base
   include ActiveJob::Status
 
   def status
-    @status ||= ActiveJob::Status::Status.new(self, expires_in: 3.days, throttle_interval: 0.5)
+    @status ||= ActiveJob::Status::Status.new(self,
+      expires_in: 3.days,
+      throttle_interval: 0.5,
+      includes: %i[status serialized_job])
   end
 
   def perform
     ...
   end
 end
-```
-
-### To store more information about the job:
-
-You are able to define what data you want to store
-
-Available options are: :status, :serialized_job, :exception
-
-Default is [:status]
-
-You can include it like the following in configuration.
-
-```ruby
-ActiveJob::Status.options = { includes: %i[status serialized_job exception] }
 ```
 
 ## ActiveJob::Status and exceptions
@@ -304,7 +344,7 @@ class ApplicationJob < ActiveJob::Base
 
   rescue_from Exception do |e|
     ExceptionMonitoring.notify(e)
-    status.update(status: :failed)
+    status.catch_exception(e)
     raise e
   end
 end

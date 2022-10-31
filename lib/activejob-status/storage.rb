@@ -4,7 +4,7 @@ module ActiveJob
   module Status
     class Storage
       def initialize(options = {})
-        options.assert_valid_keys(:expires_in, :throttle_interval, :includes)
+        options.assert_valid_keys(:expires_in, :throttle_interval)
 
         @expires_in = options[:expires_in]
         @throttle = ActiveJob::Status::Throttle.new(options[:throttle_interval])
