@@ -110,26 +110,76 @@ RSpec.describe ActiveJob::Status do
     end
   end
 
-  context "with #job included as an option" do
+  context "when status is no more included by default" do
     before do
+      described_class.options = {includes: []}
+    end
+
+    it "doesn't update job status after being enqueued" do
+      job = BaseJob.perform_later
+
+      expect(job.status.to_h).to eq({})
+    end
+
+    it "doesn't update job status after being performed" do
+      job = BaseJob.perform_later
+      perform_enqueued_jobs
+
+      expect(job.status.to_h).to eq({})
+    end
+  end
+
+  context "when serialized job is included by default" do
+    before do
+      Timecop.freeze("2022-10-31T00:00:00Z")
       described_class.options = {includes: %i[status serialized_job]}
     end
 
     it "sets job status to queued after being enqueued" do
       job = BaseJob.perform_later
 
-      expect(job.status.to_h).to eq(status: :queued, serialized_job: job.serialize)
+      expect(job.status.to_h).to eq(
+        status: :queued,
+        serialized_job: {
+          "arguments" => [],
+          "enqueued_at" => "2022-10-31T00:00:00Z",
+          "exception_executions" => {},
+          "executions" => 0,
+          "job_class" => "BaseJob",
+          "job_id" => job.job_id,
+          "locale" => "en",
+          "priority" => nil,
+          "provider_job_id" => nil,
+          "queue_name" => "default",
+          "timezone" => nil
+        }
+      )
     end
 
     it "sets job status to completed after being performed" do
       job = BaseJob.perform_later
       perform_enqueued_jobs
 
-      expect(job.status.to_h).to eq(status: :completed, serialized_job: job.serialize)
+      expect(job.status.to_h).to eq(
+        status: :completed,
+        serialized_job: {
+          "arguments" => [],
+          "enqueued_at" => "2022-10-31T00:00:00Z",
+          "exception_executions" => {},
+          "executions" => 1,
+          "job_class" => "BaseJob",
+          "job_id" => job.job_id,
+          "locale" => "en",
+          "priority" => nil,
+          "provider_job_id" => nil,
+          "queue_name" => "default",
+          "timezone" => nil
+        }
+      )
     end
   end
 
-  context "with #exception included as an option" do
+  context "when exception is included by default" do
     before do
       described_class.options = {includes: %i[status exception]}
     end
@@ -138,7 +188,10 @@ RSpec.describe ActiveJob::Status do
       job = FailedJob.perform_later
 
       expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
-      expect(job.status.to_h).to eq(status: :failed, exception: "Something went wrong")
+      expect(job.status.to_h).to eq(
+        status: :failed,
+        exception: {class:"NoMethodError", message:"Something went wrong"}
+      )
     end
   end
 end

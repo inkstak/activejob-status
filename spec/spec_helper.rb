@@ -5,6 +5,7 @@ Bundler.setup
 
 require "active_job"
 require "activejob-status"
+require "timecop"
 
 Dir.mkdir("tmp") unless Dir.exist?("tmp")
 
@@ -18,4 +19,8 @@ RSpec.configure do |config|
   end
 
   config.include ActiveJob::TestHelper
+
+  config.after do
+    Timecop.return
+  end
 end
