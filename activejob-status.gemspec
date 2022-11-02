@@ -17,14 +17,4 @@ Gem::Specification.new do |s|
 
   s.add_dependency "activejob", ">= 4.2"
   s.add_dependency "activesupport", ">= 4.2"
-
-  s.add_development_dependency "rake", "~> 13.0"
-  s.add_development_dependency "rspec", "~> 3.0"
-  s.add_development_dependency "bundler", ">= 1.3"
-  s.add_development_dependency "rubocop", ">= 1.20"
-  s.add_development_dependency "rubocop-performance", ">= 1.11"
-  s.add_development_dependency "rubocop-rspec", ">= 2.4"
-  s.add_development_dependency "rubocop-rake"
-  s.add_development_dependency "standard", ">= 1.3.0"
-  s.add_development_dependency "timecop"
 end
