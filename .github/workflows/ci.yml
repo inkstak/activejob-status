@@ -16,49 +16,54 @@ on:
 jobs:
   rspec:
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         ruby-version: ['2.5', '2.6', '2.7', '3.0', head, jruby, jruby-head, truffleruby, truffleruby-head]
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
+
     - name: Run tests
-      run: bundle exec rspec
+      run: CC_TEST_REPORTER_ID=1 bundle exec rspec
+
+    - name: Publish code coverage
+      if: ${{ success() && env.CC_TEST_REPORTER_ID }}
+      uses: paambaati/codeclimate-action@v2.7.5
+      env:
+        CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
 
   rubocop:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: [ '3.0' ]
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
+        ruby-version: '3.0'
         bundler-cache: true
+
     - name: Run rubocop
       run: bundle exec rubocop
 
   standardrb:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        ruby-version: [ '3.0' ]
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: ${{ matrix.ruby-version }}
+        ruby-version: '3.0'
         bundler-cache: true
+
     - name: Run standardb
       run: bundle exec standardrb
