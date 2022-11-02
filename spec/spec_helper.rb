@@ -24,6 +24,10 @@ RSpec.configure do |config|
 
   config.include ActiveJob::TestHelper
 
+  config.before do
+    ActiveJob::Status.options = ActiveJob::Status::DEFAULT_OPTIONS
+  end
+
   config.after do
     Timecop.return
   end
