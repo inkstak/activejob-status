@@ -46,5 +46,19 @@ jobs:
         bundler-cache: true
     - name: Run rubocop
       run: bundle exec rubocop
+
+  standardrb:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: [ '3.0' ]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: ${{ matrix.ruby-version }}
+        bundler-cache: true
     - name: Run standardb
       run: bundle exec standardrb
