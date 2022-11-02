@@ -190,7 +190,7 @@ RSpec.describe ActiveJob::Status do
       expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
       expect(job.status.to_h).to eq(
         status: :failed,
-        exception: {class:"NoMethodError", message:"Something went wrong"}
+        exception: {class: "NoMethodError", message: "Something went wrong"}
       )
     end
   end

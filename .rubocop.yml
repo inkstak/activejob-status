@@ -1,3 +1,5 @@
+inherit_from: .rubocop_todo.yml
+
 require:
   - rubocop-performance
   - rubocop-rspec
@@ -8,15 +10,15 @@ inherit_gem:
   standard:
     - config/base.yml
     - config/ruby-2.5.yml
+    - config/ruby-2.6.yml
     - config/ruby-2.7.yml
+    - config/ruby-3.0.yml
 
 AllCops:
+  NewCops: enable
   Exclude:
     - '**/tmp/**/*'
     - '**/vendor/**/*'
-
-RSpec/MultipleExpectations:
-  Max: 2
 
 RSpec/FilePath:
   SpecSuffixOnly:
