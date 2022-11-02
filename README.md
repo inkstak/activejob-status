@@ -7,9 +7,14 @@ Simple monitoring status for ActiveJob, independent of your queuing backend or c
 [![Maintainability](https://api.codeclimate.com/v1/badges/9bb8b75ea8c66b1a9c94/maintainability)](https://codeclimate.com/github/inkstak/activejob-status/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/9bb8b75ea8c66b1a9c94/test_coverage)](https://codeclimate.com/github/inkstak/activejob-status/test_coverage)
 
+## Installation
 
-```ruby
-gem 'activejob-status'
+```bash
+gem install activejob-status
+```
+or
+```bash
+bundle add activejob-status
 ```
 
 ## Configuration
