@@ -1,2 +1,4 @@
-/tmp/**
+*.gem
 Gemfile.lock
+coverage
+tmp

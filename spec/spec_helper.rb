@@ -3,6 +3,9 @@
 require "bundler/setup"
 Bundler.setup
 
+require "simplecov"
+SimpleCov.start
+
 require "active_job"
 require "activejob-status"
 require "timecop"
@@ -14,6 +17,7 @@ ActiveJob::Base.logger = ActiveSupport::TaggedLogging.new(ActiveSupport::Logger.
 ActiveJob::Status.store = :memory_store
 
 RSpec.configure do |config|
+  config.order = "random"
   config.expect_with :rspec do |expect|
     expect.syntax = :expect
   end
