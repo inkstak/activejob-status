@@ -2,6 +2,12 @@
 
 Simple monitoring status for ActiveJob, independent of your queuing backend or cache storage.
 
+[![Gem Version](https://badge.fury.io/rb/activejob-status.svg)](https://rubygems.org/gems/activejob-status)
+[![CI Status](https://github.com/inkstak/activejob-status/actions/workflows/ci.yml/badge.svg)](https://github.com/inkstak/activejob-status/actions/workflows/ci.yml)
+[![Maintainability](https://api.codeclimate.com/v1/badges/9bb8b75ea8c66b1a9c94/maintainability)](https://codeclimate.com/github/inkstak/activejob-status/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/9bb8b75ea8c66b1a9c94/test_coverage)](https://codeclimate.com/github/inkstak/activejob-status/test_coverage)
+
+
 ```ruby
 gem 'activejob-status'
 ```
@@ -379,6 +385,7 @@ end
 ```bash
 bundle exec rspec
 bundle exec rubocop
+bundle exec standardrb
 ```
 
 Both can be run with:
@@ -391,7 +398,6 @@ Rubocop uses [Standard](https://github.com/testdouble/standard) cops
 
 ## License & credits
 
-Copyright (c) 2021 Savater Sebastien.  
-See [LICENSE](https://github.com/inkstak/activejob-status/blob/master/LICENSE) for further details.
+Please see [LICENSE](https://github.com/inkstak/coverart/blob/main/LICENSE) for further details.
 
-Contributors: [./graphs/contributors](https://github.com/inkstak/activejob-status/graphs/contributors)
+Contributors: [./graphs/contributors](https://github.com/inkstak/coverart/graphs/contributors)
