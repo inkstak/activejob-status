@@ -9,10 +9,9 @@ end
 
 class AsyncJob < BaseJob
   self.queue_adapter = :async
-  queue_adapter.immediate = true
 
-  def perform
-    sleep(0.5)
+  def perform(sleep_time = 1)
+    sleep(sleep_time)
   end
 end
 
