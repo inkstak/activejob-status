@@ -125,6 +125,34 @@ RSpec.describe ActiveJob::Status do
         .to change(status, :to_h)
         .to(status: :completed, step: "B", progress: 25, total: 50)
     end
+
+    it "updates job status property from the outside using []=" do
+      job = BaseJob.perform_later
+      status = described_class.get(job.job_id)
+
+      status[:step] = "A"
+
+      expect(job.status.to_h).to include(step: "A")
+    end
+
+    it "updates job progress from the outside using []=" do
+      job = BaseJob.perform_later
+      status = described_class.get(job.job_id)
+
+      status[:progress] = 1
+      status[:total]    = 5
+
+      expect(job.status.to_h).to include(progress: 1, total: 5)
+    end
+
+    it "updates job status properties from the outside using #update" do
+      job = BaseJob.perform_later
+      status = described_class.get(job.job_id)
+
+      status.update(step: "C", progress: 24, total: 48)
+
+      expect(job.status.to_h).to include(step: "C", progress: 24, total: 48)
+    end
   end
 
   describe "throttling" do

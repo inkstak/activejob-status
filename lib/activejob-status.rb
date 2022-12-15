@@ -2,6 +2,8 @@
 
 require "active_support/concern"
 require "active_support/core_ext/hash"
+require "active_support/core_ext/enumerable"
+require "active_job"
 require "activejob-status/storage"
 require "activejob-status/status"
 require "activejob-status/progress"

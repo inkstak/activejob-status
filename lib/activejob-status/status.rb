@@ -23,8 +23,10 @@ module ActiveJob
       alias_method :to_h, :read
 
       def update(payload, options = {})
-        @job.progress.instance_variable_set(:@progress, payload[:progress]) if payload.include?(:progress)
-        @job.progress.instance_variable_set(:@total, payload[:total]) if payload.include?(:total)
+        if @job.respond_to?(:progress)
+          @job.progress.instance_variable_set(:@progress, payload[:progress]) if payload.include?(:progress)
+          @job.progress.instance_variable_set(:@total, payload[:total]) if payload.include?(:total)
+        end
 
         @storage.update(@job, payload, **options)
       end
@@ -56,6 +58,8 @@ module ActiveJob
       # Update default data
 
       def update_defaults(status_key)
+        raise "cannot call #update_defaults when status is accessed from outside the job" if @job.is_a?(String)
+
         payload = {}
         payload[:status] = status_key if @defaults.include?(:status)
         payload[:serialized_job] = @job.serialize if @defaults.include?(:serialized_job)
@@ -63,6 +67,8 @@ module ActiveJob
       end
 
       def catch_exception(e)
+        raise "cannot call #catch_exception when status is accessed from outside the job" if @job.is_a?(String)
+
         payload = {}
         payload[:status] = :failed if @defaults.include?(:status)
         payload[:serialized_job] = @job.serialize if @defaults.include?(:serialized_job)
