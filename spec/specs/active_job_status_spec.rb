@@ -5,34 +5,34 @@ require_relative "../jobs/test_jobs"
 
 RSpec.describe ActiveJob::Status do
   describe "job status instance" do
-    it "assigns a Status to a job" do
+    it "is assigned when job is initialized" do
       job = BaseJob.new
       expect(job.status).to be_an(ActiveJob::Status::Status)
     end
 
-    it "assigns a Status after enqueuing a job" do
+    it "is assigned when is enqueued" do
       job = BaseJob.perform_later
       expect(job.status).to be_an(ActiveJob::Status::Status)
     end
 
-    it "retrieves the Status using job instance" do
+    it "is retrieved using job instance" do
       job = BaseJob.perform_later
       expect(described_class.get(job)).to be_an(ActiveJob::Status::Status)
     end
 
-    it "retrieves the Status using job ID" do
+    it "is retrieved using job ID" do
       job = BaseJob.perform_later
       expect(described_class.get(job.job_id)).to be_an(ActiveJob::Status::Status)
     end
   end
 
   describe "job status key" do
-    it "assigns `queued` status after enqueuing a job" do
+    it "is assigned to `queued` after the job is enqueued" do
       job = BaseJob.perform_later
       expect(job.status.to_h).to eq(status: :queued)
     end
 
-    it "assigns 'working` status while job is performed" do
+    it "is assigned to 'working` while the job is performed" do
       job = AsyncJob.perform_later(2)
       sleep(0.1) # Give time to async thread pool to start the job
 
@@ -41,13 +41,13 @@ RSpec.describe ActiveJob::Status do
       AsyncJob.queue_adapter.shutdown(wait: false)
     end
 
-    it "assigns `completed` status after performing a job" do
+    it "is assigned to `completed` after the is performed" do
       job = BaseJob.perform_later
       perform_enqueued_jobs
       expect(job.status.to_h).to eq(status: :completed)
     end
 
-    it "assigns `failed` status after an exception is raised" do
+    it "is assigned to `failed` when an exception is raised" do
       job = FailedJob.perform_later
 
       aggregate_failures do
@@ -61,12 +61,12 @@ RSpec.describe ActiveJob::Status do
         described_class.options = {includes: []}
       end
 
-      it "doesn't update job status after being enqueued" do
+      it "isn't assigned after the job is enqueued" do
         job = BaseJob.perform_later
         expect(job.status.to_h).to eq({})
       end
 
-      it "doesn't update job status after being performed" do
+      it "isn't assigned after the job is performed" do
         job = BaseJob.perform_later
         perform_enqueued_jobs
         expect(job.status.to_h).to eq({})
@@ -75,13 +75,12 @@ RSpec.describe ActiveJob::Status do
   end
 
   describe "job progress" do
-    it "assigns a Progress to a job" do
+    it "is assigned to the job instance" do
       job = BaseJob.new
-
       expect(job.progress).to be_an(ActiveJob::Status::Progress)
     end
 
-    it "updates job progress" do
+    it "is updated from inside the job" do
       job = ProgressJob.perform_later
       perform_enqueued_jobs
 
@@ -92,22 +91,22 @@ RSpec.describe ActiveJob::Status do
     end
   end
 
-  describe "job status data" do
-    it "updates job status with custom property using []=" do
+  describe "job status" do
+    it "updates custom property using []=" do
       job = CustomPropertyJob.perform_later
       perform_enqueued_jobs
 
       expect(job.status.to_h).to include(step: "A")
     end
 
-    it "updates job status with multiple properties using #update" do
+    it "updates multiple properties using #update" do
       job = UpdateJob.perform_later
       perform_enqueued_jobs
 
       expect(job.status.to_h).to include(step: "B", progress: 25, total: 50)
     end
 
-    it "syncs job progress when using #update" do
+    it "updates job progress when using #update" do
       job = UpdateJob.perform_later
       job.perform
 
@@ -117,7 +116,7 @@ RSpec.describe ActiveJob::Status do
       end
     end
 
-    it "retrieves all job status properties" do
+    it "retrieves all updated properties" do
       job = UpdateJob.perform_later
       status = described_class.get(job.job_id)
 
@@ -126,7 +125,7 @@ RSpec.describe ActiveJob::Status do
         .to(status: :completed, step: "B", progress: 25, total: 50)
     end
 
-    it "updates job status property from the outside using []=" do
+    it "updates custom property from the outside using []=" do
       job = BaseJob.perform_later
       status = described_class.get(job.job_id)
 
@@ -140,12 +139,12 @@ RSpec.describe ActiveJob::Status do
       status = described_class.get(job.job_id)
 
       status[:progress] = 1
-      status[:total]    = 5
+      status[:total] = 5
 
       expect(job.status.to_h).to include(progress: 1, total: 5)
     end
 
-    it "updates job status properties from the outside using #update" do
+    it "updates multiple properties from the outside using #update" do
       job = BaseJob.perform_later
       status = described_class.get(job.job_id)
 
@@ -156,21 +155,21 @@ RSpec.describe ActiveJob::Status do
   end
 
   describe "throttling" do
-    it "updates job status despite throttling using []=" do
+    it "is ignored when updating status using []=" do
       job = ThrottledSettersJob.perform_later
       perform_enqueued_jobs
 
       expect(job.status.to_h).to include(status: :completed, step: "C", progress: 2, total: 30)
     end
 
-    it "skip status updates due to throttling using .update()" do
+    it "is limiting updates in a time interval when using #update" do
       job = ThrottledUpdatesJob.perform_later
       perform_enqueued_jobs
 
       expect(job.status.to_h).to include(status: :completed)
     end
 
-    it "updates job status despite throttling using .update(.., force: true)" do
+    it "is bypassed when using :force parameter in #update" do
       job = ThrottledForcedUpdatesJob.perform_later
       perform_enqueued_jobs
 
