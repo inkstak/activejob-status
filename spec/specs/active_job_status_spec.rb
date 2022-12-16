@@ -4,6 +4,18 @@ require_relative "../spec_helper"
 require_relative "../jobs/test_jobs"
 
 RSpec.describe ActiveJob::Status do
+  # FIXME: weird error on JRUBY, happening randomly,
+  # where keyword arguments are not passed as keyword arguments but with regular
+  # arguments
+  #
+  if RUBY_ENGINE == "jruby" && JRUBY_VERSION == "9.4.0.0"
+    def jobs_with(*args, **kwargs)
+      super
+    rescue ArgumentError
+      super(args[0], **args[1]) if kwargs.empty?
+    end
+  end
+
   describe "job status instance" do
     it "is assigned when job is initialized" do
       job = BaseJob.new
