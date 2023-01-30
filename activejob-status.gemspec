@@ -6,13 +6,15 @@ require "activejob-status/version"
 Gem::Specification.new do |s|
   s.name = "activejob-status"
   s.version = ActiveJob::Status::VERSION
+
   s.authors = ["Savater Sebastien"]
-  s.email = ["savater.sebastien@gmail.com"]
+  s.email = "github.60k5k@simplelogin.co"
+
   s.homepage = "https://github.com/inkstak/activejob-status"
   s.licenses = ["MIT"]
   s.summary = "Monitor your jobs"
 
-  s.files = Dir["lib/**/*"]
+  s.files = Dir["lib/**/*"] + %w[LICENSE README.md]
   s.require_paths = ["lib"]
 
   s.add_dependency "activejob", ">= 4.2"

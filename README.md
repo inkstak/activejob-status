@@ -4,9 +4,9 @@ Simple monitoring status for ActiveJob, independent of your queuing backend or c
 
 [![Gem Version](https://badge.fury.io/rb/activejob-status.svg)](https://rubygems.org/gems/activejob-status)
 [![CI Status](https://github.com/inkstak/activejob-status/actions/workflows/ci.yml/badge.svg)](https://github.com/inkstak/activejob-status/actions/workflows/ci.yml)
+[![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a7b1ec1d3769e49021fd/maintainability)](https://codeclimate.com/github/inkstak/activejob-status/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/a7b1ec1d3769e49021fd/test_coverage)](https://codeclimate.com/github/inkstak/activejob-status/test_coverage)
-[![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
 
 ## Installation
 
