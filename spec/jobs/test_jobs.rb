@@ -17,6 +17,12 @@ end
 
 class FailedJob < BaseJob
   def perform
+    raise "Something went wrong"
+  end
+end
+
+class MethodErrorJob < BaseJob
+  def perform
     raise NoMethodError, "Something went wrong"
   end
 end

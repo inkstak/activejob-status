@@ -63,7 +63,7 @@ RSpec.describe ActiveJob::Status do
       job = FailedJob.perform_later
 
       aggregate_failures do
-        expect { perform_enqueued_jobs }.to raise_error(NoMethodError)
+        expect { perform_enqueued_jobs }.to raise_error(RuntimeError)
         expect(job.status.to_h).to eq(status: :failed)
       end
     end
@@ -246,6 +246,18 @@ RSpec.describe ActiveJob::Status do
 
     it "sets job status to failed after an exception is raised" do
       job = FailedJob.perform_later
+
+      aggregate_failures do
+        expect { perform_enqueued_jobs }.to raise_error(RuntimeError)
+        expect(job.status.to_h).to eq(
+          status: :failed,
+          exception: {class: "RuntimeError", message: "Something went wrong"}
+        )
+      end
+    end
+
+    it "returns origin message from failure, without DidYouMean suggestions" do
+      job = MethodErrorJob.perform_later
 
       aggregate_failures do
         expect { perform_enqueued_jobs }.to raise_error(NoMethodError)

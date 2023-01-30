@@ -72,7 +72,13 @@ module ActiveJob
         payload = {}
         payload[:status] = :failed if @defaults.include?(:status)
         payload[:serialized_job] = @job.serialize if @defaults.include?(:serialized_job)
-        payload[:exception] = {class: e.class.name, message: e.original_message} if @defaults.include?(:exception)
+
+        if @defaults.include?(:exception)
+          message = e.message
+          message = e.original_message if e.respond_to?(:original_message)
+          payload[:exception] = {class: e.class.name, message: message}
+        end
+
         update(payload, force: true)
       end
     end
