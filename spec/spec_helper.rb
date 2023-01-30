@@ -3,8 +3,10 @@
 require "bundler/setup"
 Bundler.setup
 
-require "simplecov"
-SimpleCov.start
+unless RUBY_ENGINE == "truffleruby"
+  require "simplecov"
+  SimpleCov.start
+end
 
 require "active_job"
 require "activejob-status"
