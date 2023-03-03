@@ -20,13 +20,11 @@ bundle add activejob-status
 
 ## Dependencies
 
-`ActiveJob::Status` won't support [EOL versions](https://endoflife.date/rails) of `ActiveJob` & `ActiveSupport`.
+In future releases, `ActiveJob::Status` won't support [EOL versions](https://endoflife.date/rails) of `ActiveJob` & `ActiveSupport`.
 
-* Version `1.x` (not yet released) will require `ActiveSupport >= 6.0`.
-* Version `0.5` (not yet released) will require `ActiveSupport >= 5.0`.
-* Version `0.2` requires `ActiveSupport >= 4.2`
+* Version `1.x` requires `ActiveSupport >= 6.0`
 
-Version `0.3` & `0.4` requires `ActiveSupport >= 4.2` but some features introduced after `0.2.2` might requires `ActiveSupport 5.0` (see [#24](https://github.com/inkstak/activejob-status/issues/24))
+If you're still using older Rails version, see [#24](https://github.com/inkstak/activejob-status/issues/24#issuecomment-1436046173).
 
 
 ## Configuration
