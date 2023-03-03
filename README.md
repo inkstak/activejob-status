@@ -24,10 +24,7 @@ In future releases, `ActiveJob::Status` won't support [EOL versions](https://end
 
 * Version `1.x` requires `ActiveSupport >= 6.0`
 
-If you're still using older Rails version:
-
-* Version `0.5` required `ActiveSupport >= 5.0`
-* Version `0.2` required `ActiveSupport >= 4.2`
+If you're still using older Rails version, see [#24](https://github.com/inkstak/activejob-status/issues/24#issuecomment-1436046173).
 
 
 ## Configuration
