@@ -17,8 +17,10 @@ Gem::Specification.new do |s|
   s.files = Dir["lib/**/*"] + %w[LICENSE README.md]
   s.require_paths = ["lib"]
 
-  s.add_dependency "activejob", ">= 4.2"
-  s.add_dependency "activesupport", ">= 4.2"
+  s.required_ruby_version = '< 3'
+
+  s.add_dependency "activejob", ">= 5.0", "< 6"
+  s.add_dependency "activesupport", ">= 5.0", "< 6"
 
   s.add_development_dependency "appraisal"
   s.add_development_dependency "rake"
