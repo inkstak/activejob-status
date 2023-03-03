@@ -411,6 +411,12 @@ All of them can be run with:
 bundle exec rake
 ```
 
+To run test suite against various version of Rails dependencies:
+```bash
+bundle exec appraisal install
+bundle exec appraisal
+```
+
 ## License & credits
 
 Please see [LICENSE](https://github.com/inkstak/coverart/blob/main/LICENSE) for further details.
