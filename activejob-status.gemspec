@@ -19,4 +19,15 @@ Gem::Specification.new do |s|
 
   s.add_dependency "activejob", ">= 4.2"
   s.add_dependency "activesupport", ">= 4.2"
+
+  s.add_development_dependency "appraisal"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "rubocop"
+  s.add_development_dependency "rubocop-rake"
+  s.add_development_dependency "rubocop-rspec"
+  s.add_development_dependency "rubocop-performance"
+  s.add_development_dependency "simplecov"
+  s.add_development_dependency "standard"
+  s.add_development_dependency "timecop"
 end

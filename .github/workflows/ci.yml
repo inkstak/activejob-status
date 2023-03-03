@@ -29,8 +29,11 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
 
+    - name: Set up Appraisal
+      run: bundle exec appraisal install
+
     - name: Run tests
-      run: CC_TEST_REPORTER_ID=1 bundle exec rspec
+      run: CC_TEST_REPORTER_ID=1 bundle exec appraisal rspec
 
     - name: Publish code coverage
       if: ${{ success() && env.CC_TEST_REPORTER_ID && matrix.ruby-version == '3.2' }}
