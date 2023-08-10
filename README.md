@@ -403,16 +403,16 @@ bundle exec rubocop
 bundle exec standardrb
 ```
 
+To run RSpec against various version of Rails dependencies:
+```bash
+bundle exec appraisal install
+bundle exec appraisal rspec
+```
+
 All of them can be run with:
 
 ```bash
 bundle exec rake
-```
-
-To run test suite against various version of Rails dependencies:
-```bash
-bundle exec appraisal install
-bundle exec appraisal
 ```
 
 ## License & credits
