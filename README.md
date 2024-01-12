@@ -20,12 +20,9 @@ bundle add activejob-status
 
 ## Dependencies
 
-In future releases, `ActiveJob::Status` won't support [EOL versions](https://endoflife.date/rails) of `ActiveJob` & `ActiveSupport`.
+ActiveJob::Status 1.x requires `ActiveSupport >= 6.0`
 
-* Version `1.x` requires `ActiveSupport >= 6.0`
-
-If you're still using older Rails version, see [#24](https://github.com/inkstak/activejob-status/issues/24#issuecomment-1436046173).
-
+If you're still using an older version of Rails, see [v0.5.0](https://github.com/inkstak/activejob-status/releases/tag/v0.5.0).
 
 ## Configuration
 
@@ -417,6 +414,6 @@ bundle exec rake
 
 ## License & credits
 
-Please see [LICENSE](https://github.com/inkstak/coverart/blob/main/LICENSE) for further details.
+Please see [LICENSE](https://github.com/inkstak/activejob-status/blob/main/LICENSE) for further details.
 
-Contributors: [./graphs/contributors](https://github.com/inkstak/coverart/graphs/contributors)
+Contributors: [./graphs/contributors](https://github.com/inkstak/activejob-status/graphs/contributors)
