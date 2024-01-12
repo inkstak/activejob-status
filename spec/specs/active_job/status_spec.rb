@@ -8,7 +8,7 @@ RSpec.describe ActiveJob::Status do
   # where keyword arguments are not passed as keyword arguments but with regular
   # arguments
   #
-  if RUBY_ENGINE == "jruby" && JRUBY_VERSION == "9.4.0.0"
+  if RUBY_ENGINE == "jruby" && Gem::Version.new(JRUBY_VERSION) >= Gem::Version.new("9.4")
     def jobs_with(*args, **kwargs)
       super
     rescue ArgumentError
