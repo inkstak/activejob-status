@@ -24,6 +24,7 @@ task :default do
     # report offenses from other plugins putted in .rubocop_todo.yml
     # https://github.com/testdouble/standard/issues/480
 
+    fail unless system "bundle exec appraisal install"
     fail unless system "bundle exec appraisal rspec"
     fail unless system "bundle exec rubocop"
     fail unless system "bundle exec rake standard"
