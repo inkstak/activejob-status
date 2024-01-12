@@ -54,7 +54,7 @@ module ActiveJob
       end
 
       def store
-        @@store ||= (defined?(Rails) && Rails.cache)
+        @@store ||= (Rails.cache if defined?(Rails))
       end
 
       def get(id)

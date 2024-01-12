@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require_relative "../spec_helper"
-require_relative "../jobs/test_jobs"
+require_relative "../../spec_helper"
+require_relative "../../jobs/test_jobs"
 
 RSpec.describe ActiveJob::Status do
   # FIXME: weird error on JRUBY, happening randomly,
   # where keyword arguments are not passed as keyword arguments but with regular
   # arguments
   #
-  if RUBY_ENGINE == "jruby" && JRUBY_VERSION == "9.4.0.0"
+  if RUBY_ENGINE == "jruby" && Gem::Version.new(JRUBY_VERSION) >= Gem::Version.new("9.4")
     def jobs_with(*args, **kwargs)
       super
     rescue ArgumentError
@@ -202,7 +202,7 @@ RSpec.describe ActiveJob::Status do
         status: :queued,
         serialized_job: {
           "arguments" => [],
-          "enqueued_at" => "2022-10-31T00:00:00Z",
+          "enqueued_at" => "2022-10-31T00:00:00.000000000Z",
           "exception_executions" => {},
           "executions" => 0,
           "job_class" => "BaseJob",
@@ -211,7 +211,17 @@ RSpec.describe ActiveJob::Status do
           "priority" => nil,
           "provider_job_id" => nil,
           "queue_name" => "default",
+          "scheduled_at" => nil,
           "timezone" => nil
+        }.tap { |hash|
+          # FIXME: comparing Gem::Version with String doesn't work in ruby 3.0
+          # After removing support for 3.0, we could do
+          #   ActiveJob.version < "7.1"
+          #
+          if ActiveJob.version < Gem::Version.new("7.1")
+            hash["enqueued_at"] = "2022-10-31T00:00:00Z"
+            hash.delete("scheduled_at")
+          end
         }
       )
     end
@@ -224,7 +234,7 @@ RSpec.describe ActiveJob::Status do
         status: :completed,
         serialized_job: {
           "arguments" => [],
-          "enqueued_at" => "2022-10-31T00:00:00Z",
+          "enqueued_at" => "2022-10-31T00:00:00.000000000Z",
           "exception_executions" => {},
           "executions" => 1,
           "job_class" => "BaseJob",
@@ -233,7 +243,13 @@ RSpec.describe ActiveJob::Status do
           "priority" => nil,
           "provider_job_id" => nil,
           "queue_name" => "default",
+          "scheduled_at" => nil,
           "timezone" => nil
+        }.tap { |hash|
+          if ActiveJob.version < Gem::Version.new("7.1")
+            hash["enqueued_at"] = "2022-10-31T00:00:00Z"
+            hash.delete("scheduled_at")
+          end
         }
       )
     end
