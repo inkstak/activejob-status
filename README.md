@@ -324,6 +324,24 @@ class MyJob < ActiveJob::Base
 end
 ```
 
+### Grouping jobs into batches
+
+```ruby
+job       = MyJob.perform_later
+other_job = OtherJob.perform_later 
+
+batch = ActiveJob::Status::Batch.new(job, other_job)
+batch.status
+# "queued"
+```
+
+The batch status can be `queued`, `failed`, `completed` or `working`.
+
+1. The batch is considered `queued` if **all** of the jobs are `queued`
+2. The batch is considered `failed` if **one** of the jobs is `failed`
+3. The batch is considered `completed` if **all** of the jobs are `completed`
+4. The batch is considered `working` in all other circumstances
+
 ## ActiveJob::Status and exceptions
 
 Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed` status
