@@ -342,6 +342,34 @@ The batch status can be `queued`, `failed`, `completed` or `working`.
 3. The batch is considered `completed` if **all** of the jobs are `completed`
 4. The batch is considered `working` in all other circumstances
 
+### Callbacks
+
+You can implement callbacks, by listening to the completion of a batch with a
+simple ActiveJob job.
+
+```ruby
+# frozen_string_literal: true
+
+require 'activejob-status'
+
+class CallbacksJob < ApplicationJob
+  queue_as :real_time
+
+  def perform(*job_ids)
+    batch = ActiveJob::Status::Batch.new(*job_ids)
+
+    case batch.status
+    when :queued, :working
+      MonitorAnalysisBatchJob.set(wait: 5.seconds).perform_later(*job_ids)
+    when :completed
+      # Completed callback
+    when :failed
+      # Failed callback
+    end
+  end
+end
+```
+
 ## ActiveJob::Status and exceptions
 
 Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed` status
