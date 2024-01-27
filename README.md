@@ -330,7 +330,7 @@ end
 job       = MyJob.perform_later
 other_job = OtherJob.perform_later 
 
-batch = ActiveJob::Status::Batch.new(job, other_job)
+batch = ActiveJob::Status::Batch.new([job, other_job])
 batch.status
 # "queued"
 ```
@@ -356,7 +356,7 @@ class CallbacksJob < ApplicationJob
   queue_as :real_time
 
   def perform(*job_ids)
-    batch = ActiveJob::Status::Batch.new(*job_ids)
+    batch = ActiveJob::Status::Batch.new(job_ids)
 
     case batch.status
     when :queued, :working

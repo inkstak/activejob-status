@@ -3,7 +3,7 @@
 module ActiveJob
   module Status
     class Batch
-      def initialize(*jobs)
+      def initialize(jobs)
         @statuses = jobs.map { |job| ActiveJob::Status.get(job) }
       end
 
