@@ -27,7 +27,9 @@ module ActiveJob
       end
 
       def read_multi(jobs)
-        store.read_multi(*jobs.map { |job| key(job) })
+        keys = jobs.map { |job| key(job) }
+        data = store.read_multi(*keys)
+        keys.index_with { |k| data.fetch(k, {}) }
       end
 
       def write(job, message, force: false)
