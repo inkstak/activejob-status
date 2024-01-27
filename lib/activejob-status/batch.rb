@@ -9,26 +9,23 @@ module ActiveJob
       end
 
       def status
-        if @jobs.all? { |job| status_for(job) == :queued }
-          :queued
-        elsif @jobs.any? { |job| status_for(job) == :failed }
+        statuses = read.values.pluck(:status)
+
+        if statuses.include?(:failed)
           :failed
-        elsif @jobs.all? { |job| status_for(job) == :completed }
+        elsif statuses.all?(:queued)
+          :queued
+        elsif statuses.all?(:completed)
           :completed
         else
           :working
         end
       end
 
-      private
-
-      def statuses
-        @statuses ||= @storage.read_multi(@jobs)
+      def read
+        @storage.read_multi(@jobs)
       end
-
-      def status_for(job)
-        statuses.dig(@storage.key(job), :status)
-      end
+      alias_method :to_h, :read
     end
   end
 end
