@@ -324,52 +324,6 @@ class MyJob < ActiveJob::Base
 end
 ```
 
-### Grouping jobs into batches
-
-```ruby
-job       = MyJob.perform_later
-other_job = OtherJob.perform_later 
-
-batch = ActiveJob::Status::Batch.new([job, other_job])
-batch.status
-# "queued"
-```
-
-The batch status can be `queued`, `failed`, `completed` or `working`.
-
-1. The batch is considered `queued` if **all** of the jobs are `queued`
-2. The batch is considered `failed` if **one** of the jobs is `failed`
-3. The batch is considered `completed` if **all** of the jobs are `completed`
-4. The batch is considered `working` in all other circumstances
-
-### Callbacks
-
-You can implement callbacks, by listening to the completion of a batch with a
-simple ActiveJob job.
-
-```ruby
-# frozen_string_literal: true
-
-require 'activejob-status'
-
-class CallbacksJob < ApplicationJob
-  queue_as :real_time
-
-  def perform(*job_ids)
-    batch = ActiveJob::Status::Batch.new(job_ids)
-
-    case batch.status
-    when :queued, :working
-      MonitorAnalysisBatchJob.set(wait: 5.seconds).perform_later(*job_ids)
-    when :completed
-      # Completed callback
-    when :failed
-      # Failed callback
-    end
-  end
-end
-```
-
 ## ActiveJob::Status and exceptions
 
 Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed` status
@@ -429,6 +383,40 @@ class MyJob < ApplicationJob
   end
 end
 ```
+
+### [Beta] Batches
+
+> **Warning** : The Batch API is available in beta:
+>
+> ```bash
+> gem install activejob-status --pre
+> # or
+> bundle add activejob-status --version "~> 1.1.0.beta.0"
+> ```
+>
+> It doesn't provide all features implemented by backends
+> like [Sidekiq](https://github.com/sidekiq/sidekiq/wiki/Batches)
+> or [GoodJob](https://github.com/bensheldon/good_job?tab=readme-ov-file#batches).  
+> Moreover, it wasn't designed to support batches with hundreds of jobs.  
+>
+
+ActiveJob::Status provides a naïve implementation of batches:
+
+```ruby
+job_1 = MyJob.perform_later
+job_2 = MyJob.perform_later
+
+batch = ActiveJob::Status::Batch.new([job_1, job_2])
+batch.status # => "working"
+```
+
+The batch status is considered:
+
+* `queued` if **all** of the jobs are `queued`
+* `failed` if **one** of the jobs is `failed`
+* `completed` if **all** of the jobs are `completed`
+* `working` in all other circumstances
+
 
 ## Contributing
 
