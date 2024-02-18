@@ -26,6 +26,12 @@ module ActiveJob
         store.read(key(job)) || {}
       end
 
+      def read_multi(jobs)
+        keys = jobs.map { |job| key(job) }
+        data = store.read_multi(*keys)
+        keys.index_with { |k| data.fetch(k, {}) }
+      end
+
       def write(job, message, force: false)
         @throttle.wrap(force: force) do
           store.write(key(job), message, expires_in: @expires_in)

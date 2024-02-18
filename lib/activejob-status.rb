@@ -8,6 +8,7 @@ require "activejob-status/storage"
 require "activejob-status/status"
 require "activejob-status/progress"
 require "activejob-status/throttle"
+require "activejob-status/batch"
 
 module ActiveJob
   module Status
