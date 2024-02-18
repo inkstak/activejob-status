@@ -8,6 +8,24 @@ Simple monitoring status for ActiveJob, independent of your queuing backend or c
 [![Maintainability](https://api.codeclimate.com/v1/badges/a7b1ec1d3769e49021fd/maintainability)](https://codeclimate.com/github/inkstak/activejob-status/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/a7b1ec1d3769e49021fd/test_coverage)](https://codeclimate.com/github/inkstak/activejob-status/test_coverage)
 
+## Table of contents
+
+- [Installation](#installation)
+- [Dependencies](#dependencies)
+- [Configuration](#configuration)
+  - [Cache Store](#cache-store)
+  - [Select data to store by default](#select-data-to-store-by-default)
+  - [Expiration time](#expiration-time)
+  - [Throttling](#throttling)
+- [Usage](#usage)
+  - [Updating status](#updating-status)
+  - [Data stored by default](#data-stored-by-default)
+  - [Reading status](#reading-status)
+  - [Serializing status to JSON](#serializing-status-to-json)
+  - [Setting options per job](#setting-options-per-job)
+  - [ActiveJob::Status and exceptions](#activejobstatus-and-exceptions)
+  - [[Beta] Batches](#beta-batches)
+
 ## Installation
 
 ```bash
@@ -324,7 +342,7 @@ class MyJob < ActiveJob::Base
 end
 ```
 
-## ActiveJob::Status and exceptions
+### ActiveJob::Status and exceptions
 
 Internally, ActiveJob::Status uses `ActiveSupport#rescue_from` to catch every `Exception` to apply the `failed` status
 before throwing the exception again.
