@@ -36,12 +36,6 @@ or
 bundle add activejob-status
 ```
 
-## Dependencies
-
-ActiveJob::Status 1.x requires `ActiveSupport >= 6.0`
-
-If you're still using an older version of Rails, see [v0.5.0](https://github.com/inkstak/activejob-status/releases/tag/v0.5.0).
-
 ## Configuration
 
 ### Cache Store
@@ -409,7 +403,7 @@ end
 > ```bash
 > gem install activejob-status --pre
 > # or
-> bundle add activejob-status --version "~> 1.1.0.beta.0"
+> bundle add activejob-status --version "~> 1.1.0.beta.1"
 > ```
 >
 > It doesn't provide all features implemented by backends
