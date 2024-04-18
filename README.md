@@ -409,7 +409,7 @@ end
 > It doesn't provide all features implemented by backends
 > like [Sidekiq](https://github.com/sidekiq/sidekiq/wiki/Batches)
 > or [GoodJob](https://github.com/bensheldon/good_job?tab=readme-ov-file#batches).  
-> Moreover, it wasn't designed to support batches with hundreds of jobs (or you might experience performanes issues).
+> Moreover, it wasn't designed to support batches with hundreds of jobs (or you might experience performance issues).
 >
 
 ActiveJob::Status provides a naïve implementation of batches:
