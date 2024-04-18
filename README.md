@@ -384,6 +384,40 @@ class MyJob < ApplicationJob
 end
 ```
 
+### [Beta] Batches
+
+> **Warning** : The Batch API is available on [beta](https://github.com/inkstak/activejob-status/tree/beta):
+>
+> ```bash
+> gem install activejob-status --pre
+> # or
+> bundle add activejob-status --version "~> 1.1.0.beta.0"
+> ```
+>
+> It doesn't provide all features implemented by backends
+> like [Sidekiq](https://github.com/sidekiq/sidekiq/wiki/Batches)
+> or [GoodJob](https://github.com/bensheldon/good_job?tab=readme-ov-file#batches).  
+> Moreover, it wasn't designed to support batches with hundreds of jobs (or you might experience performanes issues).
+>
+
+ActiveJob::Status provides a naïve implementation of batches:
+
+```ruby
+job_1 = MyJob.perform_later
+job_2 = MyJob.perform_later
+
+batch = ActiveJob::Status::Batch.new([job_1, job_2])
+batch.status # => "working"
+```
+
+The batch status is considered:
+
+* `queued` if **all** of the jobs are `queued`
+* `failed` if **one** of the jobs is `failed`
+* `completed` if **all** of the jobs are `completed`
+* `working` in all other circumstances
+
+
 ## Contributing
 
 1. Don't hesitate to submit your feature/idea/fix in [issues](https://github.com/inkstak/activejob-status)
