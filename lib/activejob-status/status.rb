@@ -44,7 +44,9 @@ module ActiveJob
       end
 
       def progress
-        read[:progress].to_f / read[:total].to_f
+        read.then do |hash|
+          hash[:progress].to_f / hash[:total].to_f
+        end
       end
 
       def present?

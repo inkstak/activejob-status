@@ -101,6 +101,14 @@ RSpec.describe ActiveJob::Status do
         expect(job.status.progress).to eq(0.4)
       end
     end
+
+    it "reads cache once" do
+      job = BaseJob.new
+
+      allow(described_class.store).to receive(:read)
+      job.status.progress
+      expect(described_class.store).to have_received(:read).once
+    end
   end
 
   describe "job status" do
