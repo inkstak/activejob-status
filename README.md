@@ -24,6 +24,7 @@ Simple monitoring status for ActiveJob, independent of your queuing backend or c
   - [Serializing status to JSON](#serializing-status-to-json)
   - [Setting options per job](#setting-options-per-job)
   - [ActiveJob::Status and exceptions](#activejobstatus-and-exceptions)
+  - [Race conditions](#race-conditions)
   - [[Beta] Batches](#beta-batches)
 
 ## Installation
@@ -68,7 +69,7 @@ end
 ### Select data to store by default
 
 By default, ActiveJob::Status already stores a status key at each step of a job's life cycle.  
-To understand what data are stored and what data to add, see [Data stored by default](#data-stored-by-default).
+To understand what data are stored and what data to add, see [Usage > Data stored by default](#data-stored-by-default).
 
 > **Warning** : adding more data means more memory consumed.  
 > For example, adding `:serialized_job` might require as much memory for caching as your use for your job backend.
@@ -207,15 +208,17 @@ status.update({ foo: 'bar' }, force: true)
 
 ### Data stored by default
 
-By default, ActiveJob::Status stores a status key.   
-You can add more information about the job using `includes` config.  
 
-Setting `ActiveJob::Status.options = { includes: %i[status] }` is equivalent to:
+By default, ActiveJob::Status only stores a status key.  
+You can add more information about the job using `includes` config.  
+See [Configuration > Select data to store by default](#select-data-to-store-by-default) for more options.
+
+Adding `:status` to `includes` (the default option) is equivalent to:
 
 ```ruby
 before_enqueue { |job| job.status[:status] = :queued }
 before_perform { |job| job.status[:status] = :working }
-after_perform { |job| job.status[:status] = :completed }
+after_perform  { |job| job.status[:status] = :completed }
 
 rescue_from(Exception) do |e|
   status[:status] = :failed
@@ -223,13 +226,13 @@ rescue_from(Exception) do |e|
 end
 ```
 
-Setting `ActiveJob::Status.options = { includes: %i[serialized_job] }` is equivalent to:
+Adding `:serialized_job` to `includes` is equivalent to:
 
 ```ruby
 before_enqueue { |job| job.status[:serialized_job] = job.serialize }
 ```
 
-Setting `ActiveJob::Status.options = { includes: %i[exception] }` is equivalent to:
+Adding `:exception` to `includes` is equivalent to:
 
 ```ruby
 rescue_from(Exception) do |e|
@@ -395,6 +398,71 @@ class MyJob < ApplicationJob
   end
 end
 ```
+
+### Race conditions
+
+Updating status in different places is subject to race conditions.
+Here is an example:
+
+```ruby
+class ExportController
+  def create
+    job = ExportJob.perform_later(some_args)
+    job.status.update({ user_id: current_user.id })
+
+    render json: { id: job.job_id }
+  end
+
+  def show
+    status = ActiveJob::Status.get(params[:id])
+    return not_found unless status[:user_id] == current_user.id
+  end
+end
+
+class ExportJob
+  def perform
+    perform_some_export
+    status.update({ path: path })
+  end
+end
+````
+
+| ExportController | ExportJob | Cached status |
+| -- | -- | -- |
+| 1. Status is created. | | `{ status: :queued }` |
+| 2. We want to update the status by adding `user_id`. The `update` method will first read the status from the cache store. | | `{ status: :queued }` |
+| | 3. The job is already performed and we want to add the `path` to the status. The `update` method will first read the status from the cache store. | `{ status: :completed }` |
+| 4. We overwrite the status in the cache store with the `user_id`. |  | `{ status: :queued, user_id: 1 }` |
+| | 5. We overwrite the status in the cache store with the `path`. | `{ status: :completed, path: "export.csv" }` |
+| 6. When we read the status, `user_id` is missing. | | `{ status: :completed, path: "export.csv" }` |
+
+ActivSupport cache stores doesn't offer lock mechanism ... because it's cache and it's volatile by definition.  
+There is therefore no mechanism implemented to narrow this race condition.  
+
+As a workaround, you better have to update status in only one place, inside the job:
+
+```ruby
+class ExportController
+  def create
+    job = ExportJob.perform_later(some_args, current_user.id)
+    render json: { id: job.job_id }
+  end
+
+  def show
+    status = ActiveJob::Status.get(params[:id])
+    return not_found unless status[:user_id] == current_user.id && !status.queued?
+  end
+end
+
+class ExportJob
+  def perform(args, user_id)
+    status.update({ user_id: user_id })
+    perform_some_export
+    status.update({ path: path })
+  end
+end
+````
+
 
 ### [Beta] Batches
 
