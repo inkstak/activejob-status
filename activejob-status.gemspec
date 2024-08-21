@@ -3,31 +3,35 @@
 $:.push File.expand_path("lib", __dir__)
 require "activejob-status/version"
 
-Gem::Specification.new do |s|
-  s.name = "activejob-status"
-  s.version = ActiveJob::Status::VERSION
+Gem::Specification.new do |spec|
+  spec.name = "activejob-status"
+  spec.version = ActiveJob::Status::VERSION
 
-  s.authors = ["Savater Sebastien"]
-  s.email = "github.60k5k@simplelogin.co"
+  spec.authors = ["Savater Sebastien"]
+  spec.email = "github.60k5k@simplelogin.co"
 
-  s.homepage = "https://github.com/inkstak/activejob-status"
-  s.licenses = ["MIT"]
-  s.summary = "Monitor your jobs"
+  spec.summary = "Monitor your jobs"
+  spec.licenses = ["MIT"]
 
-  s.files = Dir["lib/**/*"] + %w[LICENSE README.md]
-  s.require_paths = ["lib"]
+  spec.homepage = "https://github.com/inkstak/activejob-status"
+  spec.metadata["homepage_uri"] = spec.homepage
+  spec.metadata["source_code_uri"] = spec.homepage
+  spec.metadata["changelog_uri"] = "#{spec.homepage}/releases"
 
-  s.add_dependency "activejob", ">= 6.0"
-  s.add_dependency "activesupport", ">= 6.0"
+  spec.files = Dir["lib/**/*"] + %w[LICENSE README.md]
+  spec.require_paths = ["lib"]
 
-  s.add_development_dependency "appraisal"
-  s.add_development_dependency "rake"
-  s.add_development_dependency "rspec"
-  s.add_development_dependency "rubocop"
-  s.add_development_dependency "rubocop-rake"
-  s.add_development_dependency "rubocop-rspec"
-  s.add_development_dependency "rubocop-performance"
-  s.add_development_dependency "simplecov"
-  s.add_development_dependency "standard", ">= 1.0"
-  s.add_development_dependency "timecop"
+  spec.add_dependency "activejob", ">= 6.0"
+  spec.add_dependency "activesupport", ">= 6.0"
+
+  spec.add_development_dependency "appraisal"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "rubocop-rake"
+  spec.add_development_dependency "rubocop-rspec"
+  spec.add_development_dependency "rubocop-performance"
+  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "standard", ">= 1.0"
+  spec.add_development_dependency "timecop"
 end
