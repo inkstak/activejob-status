@@ -11,7 +11,6 @@ Simple monitoring status for ActiveJob, independent of your queuing backend or c
 ## Table of contents
 
 - [Installation](#installation)
-- [Dependencies](#dependencies)
 - [Configuration](#configuration)
   - [Cache Store](#cache-store)
   - [Select data to store by default](#select-data-to-store-by-default)
