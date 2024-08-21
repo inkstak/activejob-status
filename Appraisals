@@ -3,7 +3,7 @@
 # Supported versions of Rails:
 # https://endoflife.date/rails
 #
-appraise "activejob-6.1" do
+appraise "rails-6.1" do
   gem "activejob", "~> 6.1.x"
   gem "activesupport", "~> 6.1.x"
   gem "base64"
@@ -11,12 +11,17 @@ appraise "activejob-6.1" do
   gem "mutex_m"
 end
 
-appraise "activejob-7.0" do
+appraise "rails-7.0" do
   gem "activejob", "~> 7.0.x"
   gem "activesupport", "~> 7.0.x"
 end
 
-appraise "activejob-7.1" do
+appraise "rails-7.1" do
   gem "activejob", "~> 7.1.x"
   gem "activesupport", "~> 7.1.x"
+end
+
+appraise "rails-7.2" do
+  gem "activejob", "~> 7.2.x"
+  gem "activesupport", "~> 7.2.x"
 end
